@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SafarSaathi – Smart Vehicle Management & Maintenance System</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="landing-page">
+    <!-- Top Navigation Header -->
+    <header class="landing-header">
+      <div class="header-container">
+        <a href="/" class="logo-wrap">
+          <div class="logo-icon">🚗</div>
+          <span class="logo-text">SafarSaathi</span>
+        </a>
+
+        <nav class="nav-links">
+          <a href="#home">Home</a>
+          <a href="#features">Features</a>
+          <a href="#about">About</a>
+          <a href="/vehicle-search">Search Vehicle</a>
+          <a href="/vehicle-calculator">Age Calculator</a>
+        </nav>
+
+        <div class="auth-buttons">
+          <a href="/login" class="btn btn-outline btn-sm">Login</a>
+          <a href="/register" class="btn btn-primary btn-sm">Sign Up</a>
+          <a href="/admin/login" class="btn btn-secondary btn-sm admin-link" title="Admin Portal">Admin</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero Section (Matching UI Reference Screenshot #1) -->
+    <section class="hero-section" id="home">
+      <div class="hero-container">
+        <div class="hero-content">
+          <div class="hero-tag">
+            <span>🚀 Smart Vehicle Management & Maintenance</span>
+          </div>
+          <h1 class="hero-title">
+            All Your <br>
+            <span class="highlight">Vehicle Needs</span> <br>
+            In One Place
+          </h1>
+          <p class="hero-desc">
+            SafarSaathi helps vehicle owners and fleet managers track documents, fuel, mileage, maintenance schedules, expenses, insurance, and nearby roadside assistance.
+          </p>
+          <div class="hero-actions">
+            <a href="/register" class="btn btn-primary btn-lg">Get Started Free →</a>
+            <a href="#features" class="btn btn-outline btn-lg">Explore Features</a>
+          </div>
+
+          <div class="hero-features-bar">
+            <div class="feature-bar-item">
+              <span class="bar-icon">📋</span>
+              <span>Vehicle Info</span>
+            </div>
+            <div class="feature-bar-item">
+              <span class="bar-icon">⛽</span>
+              <span>Fuel & Mileage</span>
+            </div>
+            <div class="feature-bar-item">
+              <span class="bar-icon">🛡️</span>
+              <span>Insurance</span>
+            </div>
+            <div class="feature-bar-item">
+              <span class="bar-icon">💳</span>
+              <span>Expense Tracker</span>
+            </div>
+            <div class="feature-bar-item">
+              <span class="bar-icon">📍</span>
+              <span>Nearby Services</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Car Graphic Visual with Floating Status Badges -->
+        <div class="hero-visual">
+          <div class="visual-card">
+            <div class="car-illustration-wrap">
+              <div class="floating-badge badge-top-left">
+                <span class="badge-icon">🛡️</span>
+                <span class="badge-text">Insurance Active</span>
+              </div>
+              <div class="floating-badge badge-top-right">
+                <span class="badge-icon">⚡</span>
+                <span class="badge-text">PUC Valid</span>
+              </div>
+              <div class="floating-badge badge-bottom-left">
+                <span class="badge-icon">🔧</span>
+                <span class="badge-text">Service Due: 15d</span>
+              </div>
+              <div class="floating-badge badge-bottom-right">
+                <span class="badge-icon">📊</span>
+                <span class="badge-text">₹12,430 Tracked</span>
+              </div>
+
+              <!-- Stylized SVG Car Visual -->
+              <div class="car-art">
+                <svg viewBox="0 0 500 300" style="width: 100%; height: auto;">
+                  <defs>
+                    <linearGradient id="carGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#2563eb"/>
+                      <stop offset="100%" stop-color="#1d4ed8"/>
+                    </linearGradient>
+                    <linearGradient id="glassGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="#e0f2fe"/>
+                      <stop offset="100%" stop-color="#bae6fd"/>
+                    </linearGradient>
+                  </defs>
+                  <!-- Ground shadow -->
+                  <ellipse cx="250" cy="265" rx="190" ry="18" fill="rgba(15, 23, 42, 0.12)"/>
+                  <!-- Car Body -->
+                  <path d="M 90 200 L 95 170 Q 110 130 160 120 L 220 100 Q 280 85 340 105 L 400 135 Q 430 155 435 190 L 440 215 Q 440 225 430 225 L 390 225 Q 380 190 340 190 Q 300 190 290 225 L 190 225 Q 180 190 140 190 Q 100 190 90 225 Z" fill="url(#carGrad)"/>
+                  <!-- Cabin Glass -->
+                  <path d="M 170 125 L 225 108 Q 275 95 330 112 L 380 138 Q 360 150 330 150 L 190 150 Q 175 140 170 125 Z" fill="url(#glassGrad)"/>
+                  <!-- Front light -->
+                  <polygon points="425,185 438,195 425,200" fill="#fef08a"/>
+                  <!-- Wheels -->
+                  <circle cx="140" cy="225" r="32" fill="#1e293b"/>
+                  <circle cx="140" cy="225" r="18" fill="#94a3b8"/>
+                  <circle cx="140" cy="225" r="8" fill="#0f172a"/>
+                  <circle cx="340" cy="225" r="32" fill="#1e293b"/>
+                  <circle cx="340" cy="225" r="18" fill="#94a3b8"/>
+                  <circle cx="340" cy="225" r="8" fill="#0f172a"/>
+                </svg>
+              </div>
+            </div>
+            <div style="margin-top: 16px; display: flex; justify-content: center; gap: 10px;">
+              <span class="badge badge-info" style="font-size: 13px;">MH 12 AB 1234</span>
+              <span class="badge badge-success" style="font-size: 13px;">✓ Verified Active</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Stats Strip -->
+    <section style="background: #ffffff; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); padding: 30px 24px;">
+      <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; text-align: center;">
+        <div>
+          <div style="font-size: 32px; font-weight: 900; color: #1e62ff;">100%</div>
+          <div style="font-size: 13px; color: #64748b; font-weight: 600; text-transform: uppercase;">JavaScript Stack</div>
+        </div>
+        <div>
+          <div style="font-size: 32px; font-weight: 900; color: #10b981;">10+</div>
+          <div style="font-size: 13px; color: #64748b; font-weight: 600; text-transform: uppercase;">Core Modules</div>
+        </div>
+        <div>
+          <div style="font-size: 32px; font-weight: 900; color: #f59e0b;">24/7</div>
+          <div style="font-size: 13px; color: #64748b; font-weight: 600; text-transform: uppercase;">Maintenance Tracking</div>
+        </div>
+        <div>
+          <div style="font-size: 32px; font-weight: 900; color: #7c3aed;">₹12.4k+</div>
+          <div style="font-size: 13px; color: #64748b; font-weight: 600; text-transform: uppercase;">Tracked Expenses</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Grid Section -->
+    <section class="features-section" id="features" style="padding: 70px 24px; max-width: 1200px; margin: 0 auto;">
+      <div style="text-align: center; margin-bottom: 48px;">
+        <span class="badge badge-info" style="margin-bottom: 8px;">COMPREHENSIVE MODULES</span>
+        <h2 style="font-size: 32px; font-weight: 800; color: #0f172a;">Smart Vehicle Management Features</h2>
+        <p style="color: #64748b; font-size: 15px;">Designed for individual vehicle owners and commercial fleet operators.</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card card-hover">
+          <div style="font-size: 32px; margin-bottom: 12px;">🚗</div>
+          <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Garage & Vehicle Registry</h3>
+          <p style="color: #64748b; font-size: 14px;">Store 2-wheelers, 4-wheelers, and commercial vehicles with chassis number, fuel type, and registration specifications.</p>
+        </div>
+        <div class="card card-hover">
+          <div style="font-size: 32px; margin-bottom: 12px;">📁</div>
+          <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Digital Document Vault</h3>
+          <p style="color: #64748b; font-size: 14px;">Securely manage RC book, driving licence, insurance certificate, and PUC documents with expiry reminders.</p>
+        </div>
+        <div class="card card-hover">
+          <div style="font-size: 32px; margin-bottom: 12px;">⛽</div>
+          <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Fuel & Mileage Tracker</h3>
+          <p style="color: #64748b; font-size: 14px;">Log fuel quantity, cost, and odometer readings. Automatic distance and mileage calculation (km/litre).</p>
+        </div>
+        <div class="card card-hover">
+          <div style="font-size: 32px; margin-bottom: 12px;">🔧</div>
+          <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Service & Maintenance</h3>
+          <p style="color: #64748b; font-size: 14px;">Log periodic servicing, oil changes, tyre replacements, and brake maintenance with automated due date countdowns.</p>
+        </div>
+        <div class="card card-hover">
+          <div style="font-size: 32px; margin-bottom: 12px;">💳</div>
+          <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Expense Analytics</h3>
+          <p style="color: #64748b; font-size: 14px;">Comprehensive expenditure breakdown across fuel, maintenance, insurance, and repairs with monthly summaries.</p>
+        </div>
+        <div class="card card-hover">
+          <div style="font-size: 32px; margin-bottom: 12px;">🛡️</div>
+          <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Insurance & EMI Calculator</h3>
+          <p style="color: #64748b; font-size: 14px;">Compare insurance plans, track active coverage policies, and compute vehicle loan EMIs with interactive sliders.</p>
+        </div>
+        <div class="card card-hover">
+          <div style="font-size: 32px; margin-bottom: 12px;">📍</div>
+          <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Nearby Emergency Services</h3>
+          <p style="color: #64748b; font-size: 14px;">Find verified mechanics, 24/7 petrol pumps, and local RTO offices with contact numbers and distance metrics.</p>
+        </div>
+        <div class="card card-hover">
+          <div style="font-size: 32px; margin-bottom: 12px;">🛑</div>
+          <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Traffic Signs & IRC Rules</h3>
+          <p style="color: #64748b; font-size: 14px;">Explore Indian Road Congress standardized regulatory, warning, and informative road signs with Motor Vehicles Act fines.</p>
+        </div>
+        <div class="card card-hover">
+          <div style="font-size: 32px; margin-bottom: 12px;">🧮</div>
+          <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Vehicle Age & Scrappage Checker</h3>
+          <p style="color: #64748b; font-size: 14px;">Calculate exact age and check 15-year private vehicle fitness re-registration rules and National Scrappage Scheme eligibility.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Call to Action Banner -->
+    <section style="background: linear-gradient(135deg, #0f2942 0%, #1e40af 100%); color: #ffffff; padding: 60px 24px; text-align: center;">
+      <div style="max-width: 800px; margin: 0 auto;">
+        <h2 style="font-size: 32px; font-weight: 800; margin-bottom: 12px;">Start Managing Your Vehicle Smarter Today</h2>
+        <p style="color: #cbd5e1; font-size: 16px; margin-bottom: 28px;">Designed for college evaluation, presentation, and real-world utility.</p>
+        <div style="display: flex; justify-content: center; gap: 16px;">
+          <a href="/register" class="btn btn-primary btn-lg">Create Free Account</a>
+          <a href="/login" class="btn btn-outline btn-lg" style="color: #ffffff; border-color: #ffffff;">Login to Portal</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer style="background: #0f172a; color: #94a3b8; padding: 50px 24px 30px; border-top: 1px solid #1e293b;">
+      <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 32px; margin-bottom: 40px;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+            <div class="logo-icon" style="width: 32px; height: 32px;">🚗</div>
+            <span style="font-size: 20px; font-weight: 800; color: #ffffff;">SafarSaathi</span>
+          </div>
+          <p style="font-size: 13px; line-height: 1.6; color: #64748b;">
+            Smart Vehicle Management & Maintenance System. Developed with pure HTML5, CSS3, Vanilla JavaScript, Node.js, Express.js, and MongoDB.
+          </p>
+        </div>
+
+        <div>
+          <h4 style="color: #ffffff; font-size: 14px; font-weight: 700; margin-bottom: 14px;">Quick Links</h4>
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 13.5px;">
+            <li><a href="/login" style="color: #94a3b8;">User Login</a></li>
+            <li><a href="/register" style="color: #94a3b8;">Register Account</a></li>
+            <li><a href="/vehicle-search" style="color: #94a3b8;">HSRP Search</a></li>
+            <li><a href="/vehicle-calculator" style="color: #94a3b8;">Age Calculator</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 style="color: #ffffff; font-size: 14px; font-weight: 700; margin-bottom: 14px;">MCA Sem 3 Project</h4>
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: #94a3b8;">
+            <li>Diya Patel (25MCA104)</li>
+            <li>Ruchi Patel (25MCA121)</li>
+            <li>Riya Shah (25MCA156)</li>
+            <li>Academic Year: 2026</li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 style="color: #ffffff; font-size: 14px; font-weight: 700; margin-bottom: 14px;">Administrator</h4>
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 13.5px;">
+            <li><a href="/admin/login" style="color: #f97316; font-weight: 600;">Admin Console Login →</a></li>
+            <li><span style="font-size: 12px; color: #64748b;">admin@safarsaathi.com</span></li>
+            <li><span style="font-size: 12px; color: #64748b;">Pass: admin123</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="max-width: 1200px; margin: 0 auto; text-align: center; border-top: 1px solid #1e293b; padding-top: 24px; font-size: 12.5px; color: #475569;">
+        © 2026 SafarSaathi – Smart Vehicle Management and Maintenance System. All Rights Reserved.
+      </div>
+    </footer>
+  </div>
+
+  <script src="/js/api.js"></script>
+</body>
+</html>

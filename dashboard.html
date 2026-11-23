@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard – SafarSaathi</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="layout-container">
+    <!-- Dynamic Sidebar injected by navbar.js -->
+    <div id="sidebar-container"></div>
+
+    <!-- Main Content Area -->
+    <div class="main-wrapper">
+      <!-- Dynamic Topbar injected by navbar.js -->
+      <div id="topbar-container"></div>
+
+      <main class="page-content">
+        <div class="dashboard-page">
+          <!-- Page Header -->
+          <div class="dashboard-greeting">
+            <div class="greeting-text">
+              <h1>Dashboard</h1>
+              <p>Welcome back, <strong id="greetingName">User</strong>! Here's what's happening with your vehicles.</p>
+            </div>
+            <div class="greeting-action">
+              <a href="/vehicles/add" class="btn btn-primary">
+                <span>+ Add New Vehicle</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- 4 Main Stats Cards (Matching UI Reference Screenshot #4) -->
+          <div class="grid-4 stats-grid">
+            <!-- Card 1: My Vehicles -->
+            <div class="stat-card card-hover" onclick="window.location.href='/vehicles'">
+              <div class="stat-icon blue">🚗</div>
+              <div class="stat-info">
+                <span class="stat-label">My Vehicles</span>
+                <span class="stat-value" id="statVehiclesCount">...</span>
+              </div>
+            </div>
+
+            <!-- Card 2: Insurance -->
+            <div class="stat-card card-hover" onclick="window.location.href='/insurance'">
+              <div class="stat-icon green">🛡️</div>
+              <div class="stat-info">
+                <span class="stat-label">Insurance</span>
+                <span class="stat-value">
+                  <span class="badge badge-success" id="statInsuranceBadge">Active</span>
+                </span>
+              </div>
+            </div>
+
+            <!-- Card 3: Expenses -->
+            <div class="stat-card card-hover" onclick="window.location.href='/expenses'">
+              <div class="stat-icon orange">💳</div>
+              <div class="stat-info">
+                <span class="stat-label">Total Expenses</span>
+                <span class="stat-value" id="statExpensesAmount">...</span>
+              </div>
+            </div>
+
+            <!-- Card 4: Upcoming Service -->
+            <div class="stat-card card-hover" onclick="window.location.href='/services'">
+              <div class="stat-icon purple">🔧</div>
+              <div class="stat-info">
+                <span class="stat-label">Upcoming Service</span>
+                <span class="stat-value text-purple" id="statServiceCountdown">...</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Body: Quick Actions & Notifications Split -->
+          <div class="dashboard-split">
+            <!-- Left Section: Quick Actions & Vehicle Preview -->
+            <div class="split-main">
+              <!-- Quick Actions -->
+              <div class="card">
+                <div class="card-header">
+                  <h2 class="card-title">Quick Actions</h2>
+                </div>
+                <div class="grid-4 quick-grid">
+                  <a href="/vehicles/add" class="quick-action-tile">
+                    <div class="quick-icon-circle blue-tint">🚗</div>
+                    <span class="quick-label">Add Vehicle</span>
+                  </a>
+
+                  <a href="/fuel" class="quick-action-tile">
+                    <div class="quick-icon-circle green-tint">⛽</div>
+                    <span class="quick-label">Fuel & Mileage</span>
+                  </a>
+
+                  <a href="/expenses" class="quick-action-tile">
+                    <div class="quick-icon-circle orange-tint">💳</div>
+                    <span class="quick-label">Expense Tracker</span>
+                  </a>
+
+                  <a href="/vehicle-calculator" class="quick-action-tile">
+                    <div class="quick-icon-circle purple-tint">🧮</div>
+                    <span class="quick-label">Age Calculator</span>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Registered Vehicles Mini List -->
+              <div class="card">
+                <div class="card-header">
+                  <h2 class="card-title">My Registered Vehicles</h2>
+                  <a href="/vehicles" class="btn btn-outline btn-sm">View All (<span id="totalVehiclesBadge">0</span>)</a>
+                </div>
+
+                <div id="vehiclesListContainer" class="vehicles-mini-list">
+                  <div class="empty-state">
+                    <p>Loading your vehicles...</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Section: Notifications & Reminders (Screenshot #4 & #16) -->
+            <div class="split-side">
+              <div class="card notifications-card">
+                <div class="card-header">
+                  <h2 class="card-title">Reminders & Alerts</h2>
+                  <a href="/notifications" class="view-all-link">View All</a>
+                </div>
+
+                <div id="notificationsContainer" class="notifications-list">
+                  <div class="empty-notif">
+                    <span>Loading reminders...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/navbar.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up – SafarSaathi Portal</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="auth-wrapper">
+    <div class="auth-card" style="max-width: 1040px;">
+      <!-- Left Column: Registration Form -->
+      <div class="auth-form-column" style="padding: 40px;">
+        <div class="auth-brand">
+          <a href="/" class="logo-link">
+            <div class="logo-icon">🚗</div>
+            <span class="logo-name">SafarSaathi</span>
+          </a>
+        </div>
+
+        <div class="form-header">
+          <h2>Create Your Account</h2>
+          <p>Register as an Individual Vehicle Owner or Business Fleet Manager.</p>
+        </div>
+
+        <div id="alertBox"></div>
+
+        <form id="registerForm">
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="fullName">Full Name *</label>
+              <input type="text" id="fullName" class="form-control" placeholder="e.g. Diya Patel" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="accountType">Account Type *</label>
+              <select id="accountType" class="form-select" required>
+                <option value="Individual">👤 Individual Vehicle Owner</option>
+                <option value="Business">🏢 Business / Fleet Owner</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="email">Email Address *</label>
+              <input type="email" id="email" class="form-control" placeholder="diya@example.com" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="phone">Phone Number *</label>
+              <input type="tel" id="phone" class="form-control" placeholder="10-digit Mobile" pattern="[0-9]{10}" required>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="city">City *</label>
+              <select id="city" class="form-select" required>
+                <option value="">Select a city</option>
+                <option value="Ahmedabad">Ahmedabad</option>
+                <option value="Surat">Surat</option>
+                <option value="Vadodara">Vadodara</option>
+                <option value="Rajkot">Rajkot</option>
+                <option value="Gandhinagar">Gandhinagar</option>
+                <option value="Anand">Anand</option>
+                <option value="Nadiad" selected>Nadiad</option>
+                <option value="Bharuch">Bharuch</option>
+                <option value="Ankleshwar">Ankleshwar</option>
+                <option value="Valsad">Valsad</option>
+                <option value="Navsari">Navsari</option>
+                <option value="Junagadh">Junagadh</option>
+                <option value="Jamnagar">Jamnagar</option>
+                <option value="Bhavnagar">Bhavnagar</option>
+                <option value="Morbi">Morbi</option>
+                <option value="Mehsana">Mehsana</option>
+                <option value="Palanpur">Palanpur</option>
+                <option value="Porbandar">Porbandar</option>
+                <option value="Godhra">Godhra</option>
+                <option value="Dahod">Dahod</option>
+                <option value="Surendranagar">Surendranagar</option>
+                <option value="Amreli">Amreli</option>
+                <option value="Botad">Botad</option>
+                <option value="Patan">Patan</option>
+                <option value="Himmatnagar">Himmatnagar</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="state">State *</label>
+              <input type="text" id="state" class="form-control" placeholder="e.g. Gujarat" value="Gujarat" required>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="password">Password *</label>
+              <input type="password" id="password" class="form-control" placeholder="At least 6 characters" minlength="6" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="confirmPassword">Confirm Password *</label>
+              <input type="password" id="confirmPassword" class="form-control" placeholder="Re-enter password" minlength="6" required>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 4px;">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #475569; cursor: pointer;">
+              <input type="checkbox" id="terms" required checked>
+              <span>I agree to the SafarSaathi Vehicle Management Terms and Conditions</span>
+            </label>
+          </div>
+
+          <button type="submit" id="regBtn" class="btn btn-primary btn-block btn-lg" style="margin-top: 10px;">
+            <span>Create Account</span>
+          </button>
+        </form>
+
+        <div class="auth-footer-text">
+          Already have an account? <a href="/login">Sign In Here</a>
+        </div>
+      </div>
+
+      <!-- Right Column: Visual Artwork -->
+      <div class="auth-visual-column">
+        <div class="visual-car-art">
+          <svg viewBox="0 0 500 300" style="width: 100%; height: auto;">
+            <defs>
+              <linearGradient id="artGradReg" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#38bdf8"/>
+                <stop offset="100%" stop-color="#2563eb"/>
+              </linearGradient>
+            </defs>
+            <ellipse cx="250" cy="265" rx="190" ry="18" fill="rgba(0, 0, 0, 0.2)"/>
+            <path d="M 90 200 L 95 170 Q 110 130 160 120 L 220 100 Q 280 85 340 105 L 400 135 Q 430 155 435 190 L 440 215 Q 440 225 430 225 L 390 225 Q 380 190 340 190 Q 300 190 290 225 L 190 225 Q 180 190 140 190 Q 100 190 90 225 Z" fill="url(#artGradReg)"/>
+            <path d="M 170 125 L 225 108 Q 275 95 330 112 L 380 138 Q 360 150 330 150 L 190 150 Q 175 140 170 125 Z" fill="#e0f2fe"/>
+            <polygon points="425,185 438,195 425,200" fill="#fef08a"/>
+            <circle cx="140" cy="225" r="32" fill="#0f172a"/>
+            <circle cx="140" cy="225" r="16" fill="#94a3b8"/>
+            <circle cx="340" cy="225" r="32" fill="#0f172a"/>
+            <circle cx="340" cy="225" r="16" fill="#94a3b8"/>
+          </svg>
+        </div>
+        <div class="visual-text">
+          <h3>One Connected Platform</h3>
+          <p>Track multiple private and commercial vehicles, store your digital RC book and PUC, and monitor fuel consumption effortlessly.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fullName = document.getElementById('fullName').value.trim();
+      const accountType = document.getElementById('accountType').value;
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const city = document.getElementById('city').value.trim();
+      const state = document.getElementById('state').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const btn = document.getElementById('regBtn');
+
+      if (password !== confirmPassword) {
+        showAlert('alertBox', 'Passwords do not match. Please re-enter.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>Creating Account...</span>';
+
+      try {
+        const res = await apiPost('/auth/register', {
+          fullName,
+          email,
+          phone,
+          accountType,
+          city,
+          state,
+          password,
+          confirmPassword
+        });
+
+        showAlert('alertBox', 'Registration successful! Entering dashboard...', 'success');
+        setAuthSession(res.token, res.user, false);
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 800);
+      } catch (err) {
+        showAlert('alertBox', err.message || 'Registration failed.');
+        btn.disabled = false;
+        btn.innerHTML = '<span>Create Account</span>';
+      }
+    });
+  </script>
+</body>
+</html>

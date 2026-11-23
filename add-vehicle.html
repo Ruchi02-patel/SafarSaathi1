@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add / Edit Vehicle – SafarSaathi</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="layout-container">
+    <div id="sidebar-container"></div>
+
+    <div class="main-wrapper">
+      <div id="topbar-container"></div>
+
+      <main class="page-content">
+        <div style="max-width: 900px; margin: 0 auto;">
+          <!-- Header -->
+          <div class="page-header">
+            <div>
+              <h1 class="page-title" id="formHeading">Add New Vehicle</h1>
+              <p class="page-subtitle">Enter official registration parameters matching Motor Vehicles Act specifications.</p>
+            </div>
+            <a href="/vehicles" class="btn btn-outline">
+              <span>← Back to Fleet</span>
+            </a>
+          </div>
+
+          <div id="alertBox"></div>
+
+          <!-- Add Vehicle Form Card (Matching UI Reference Screenshot #6) -->
+          <div class="card" style="padding: 32px;">
+            <form id="vehicleForm">
+              <h3 style="font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                🚗 Vehicle Identity & Specifications
+              </h3>
+
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label" for="vehicleNumber">Registration Number *</label>
+                  <input type="text" id="vehicleNumber" class="form-control" placeholder="e.g. GJ07 AB 1234" required style="text-transform: uppercase; font-family: monospace; font-weight: 700;">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="vehicleType">Vehicle / Wheel Type *</label>
+                  <select id="vehicleType" class="form-select" required>
+                    <option value="4 Wheeler">4 Wheeler (Car / SUV)</option>
+                    <option value="2 Wheeler">2 Wheeler (Bike / Scooter)</option>
+                    <option value="Commercial">Commercial Vehicle</option>
+                    <option value="Heavy Vehicle">Heavy Transport Vehicle</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label" for="brand">Brand / Manufacturer *</label>
+                  <input type="text" id="brand" class="form-control" placeholder="e.g. Maruti Suzuki, Hyundai, Honda" required>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="model">Model Name *</label>
+                  <input type="text" id="model" class="form-control" placeholder="e.g. Swift VXi, Creta SX, Activa" required>
+                </div>
+              </div>
+
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label" for="fuelType">Fuel Propulsion Type *</label>
+                  <select id="fuelType" class="form-select" required>
+                    <option value="Petrol">Petrol</option>
+                    <option value="Diesel">Diesel</option>
+                    <option value="CNG">CNG</option>
+                    <option value="Electric">Electric (EV)</option>
+                    <option value="Hybrid">Hybrid</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="chassisNumber">Chassis Number (VIN) *</label>
+                  <input type="text" id="chassisNumber" class="form-control" placeholder="e.g. MB1AJ3B3C4D5E6789" required style="text-transform: uppercase; font-family: monospace;">
+                </div>
+              </div>
+
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label" for="registrationDate">Registration Date *</label>
+                  <input type="date" id="registrationDate" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="ownerName">Registered Owner Name *</label>
+                  <input type="text" id="ownerName" class="form-control" placeholder="Owner Name as on RC Book" required>
+                </div>
+              </div>
+
+              <h3 style="font-size: 16px; font-weight: 700; color: #1e293b; margin-top: 24px; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                📍 Regional & Contact Details
+              </h3>
+
+              <div class="grid-3">
+                <div class="form-group">
+                  <label class="form-label" for="phoneNumber">Contact Phone Number *</label>
+                  <input type="tel" id="phoneNumber" class="form-control" placeholder="10-digit Mobile" required>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="city">Registration City *</label>
+                  <select id="city" class="form-select" required>
+                    <option value="">Select a city</option>
+                    <option value="Ahmedabad">Ahmedabad</option>
+                    <option value="Surat">Surat</option>
+                    <option value="Vadodara">Vadodara</option>
+                    <option value="Rajkot">Rajkot</option>
+                    <option value="Gandhinagar">Gandhinagar</option>
+                    <option value="Anand">Anand</option>
+                    <option value="Nadiad" selected>Nadiad</option>
+                    <option value="Bharuch">Bharuch</option>
+                    <option value="Ankleshwar">Ankleshwar</option>
+                    <option value="Valsad">Valsad</option>
+                    <option value="Navsari">Navsari</option>
+                    <option value="Junagadh">Junagadh</option>
+                    <option value="Jamnagar">Jamnagar</option>
+                    <option value="Bhavnagar">Bhavnagar</option>
+                    <option value="Morbi">Morbi</option>
+                    <option value="Mehsana">Mehsana</option>
+                    <option value="Palanpur">Palanpur</option>
+                    <option value="Porbandar">Porbandar</option>
+                    <option value="Godhra">Godhra</option>
+                    <option value="Dahod">Dahod</option>
+                    <option value="Surendranagar">Surendranagar</option>
+                    <option value="Amreli">Amreli</option>
+                    <option value="Botad">Botad</option>
+                    <option value="Patan">Patan</option>
+                    <option value="Himmatnagar">Himmatnagar</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="state">Registration State *</label>
+                  <input type="text" id="state" class="form-control" placeholder="e.g. Gujarat" value="Gujarat" required>
+                </div>
+              </div>
+
+              <h3 style="font-size: 16px; font-weight: 700; color: #1e293b; margin-top: 24px; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                🛡️ Insurance & Statutory Validity
+              </h3>
+
+              <div class="grid-3">
+                <div class="form-group">
+                  <label class="form-label" for="insuranceStartDate">Insurance Start Date</label>
+                  <input type="date" id="insuranceStartDate" class="form-control">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="insuranceExpiryDate">Insurance Expiry Date</label>
+                  <input type="date" id="insuranceExpiryDate" class="form-control">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="pucExpiryDate">PUC Expiry Date</label>
+                  <input type="date" id="pucExpiryDate" class="form-control">
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 14px; margin-top: 30px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+                <a href="/vehicles" class="btn btn-secondary btn-lg">Cancel</a>
+                <button type="submit" id="saveBtn" class="btn btn-primary btn-lg">
+                  <span>Save Vehicle</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/navbar.js"></script>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const vehicleId = urlParams.get('id');
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!requireAuth()) return;
+
+      const user = getUser();
+      if (user) {
+        document.getElementById('ownerName').value = user.fullName || '';
+        document.getElementById('phoneNumber').value = user.phone || '';
+        if (user.city) document.getElementById('city').value = user.city;
+        if (user.state) document.getElementById('state').value = user.state;
+      }
+
+      if (vehicleId) {
+        document.getElementById('formHeading').textContent = 'Edit Vehicle Details';
+        document.getElementById('saveBtn').innerHTML = '<span>Update Vehicle</span>';
+        loadVehicleData(vehicleId);
+      }
+    });
+
+    async function loadVehicleData(id) {
+      try {
+        const res = await apiGet('/vehicles/' + id);
+        const v = res.vehicle || res.data;
+        if (!v) return;
+
+        document.getElementById('vehicleNumber').value = v.vehicleNumber || '';
+        document.getElementById('vehicleType').value = v.vehicleType || '4 Wheeler';
+        document.getElementById('brand').value = v.brand || '';
+        document.getElementById('model').value = v.model || '';
+        document.getElementById('fuelType').value = v.fuelType || 'Petrol';
+        document.getElementById('chassisNumber').value = v.chassisNumber || '';
+        document.getElementById('ownerName').value = v.ownerName || '';
+        document.getElementById('phoneNumber').value = v.phoneNumber || '';
+        document.getElementById('city').value = v.city || '';
+        document.getElementById('state').value = v.state || '';
+
+        if (v.registrationDate) {
+          document.getElementById('registrationDate').value = v.registrationDate.split('T')[0];
+        }
+        if (v.insuranceStartDate) {
+          document.getElementById('insuranceStartDate').value = v.insuranceStartDate.split('T')[0];
+        }
+        if (v.insuranceExpiryDate) {
+          document.getElementById('insuranceExpiryDate').value = v.insuranceExpiryDate.split('T')[0];
+        }
+        if (v.pucExpiryDate) {
+          document.getElementById('pucExpiryDate').value = v.pucExpiryDate.split('T')[0];
+        }
+      } catch (err) {
+        showAlert('alertBox', 'Failed to load vehicle: ' + err.message);
+      }
+    }
+
+    document.getElementById('vehicleForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('saveBtn');
+      btn.disabled = true;
+
+      const vehicleData = {
+        vehicleNumber: document.getElementById('vehicleNumber').value.trim().toUpperCase(),
+        vehicleType: document.getElementById('vehicleType').value,
+        brand: document.getElementById('brand').value.trim(),
+        model: document.getElementById('model').value.trim(),
+        fuelType: document.getElementById('fuelType').value,
+        chassisNumber: document.getElementById('chassisNumber').value.trim().toUpperCase(),
+        registrationDate: document.getElementById('registrationDate').value,
+        ownerName: document.getElementById('ownerName').value.trim(),
+        phoneNumber: document.getElementById('phoneNumber').value.trim(),
+        city: document.getElementById('city').value.trim(),
+        state: document.getElementById('state').value.trim(),
+        insuranceStartDate: document.getElementById('insuranceStartDate').value || undefined,
+        insuranceExpiryDate: document.getElementById('insuranceExpiryDate').value || undefined,
+        pucExpiryDate: document.getElementById('pucExpiryDate').value || undefined
+      };
+
+      try {
+        if (vehicleId) {
+          await apiPut('/vehicles/' + vehicleId, vehicleData);
+          showAlert('alertBox', 'Vehicle updated successfully! Redirecting...', 'success');
+        } else {
+          await apiPost('/vehicles', vehicleData);
+          showAlert('alertBox', 'Vehicle added to garage successfully! Redirecting...', 'success');
+        }
+
+        setTimeout(() => {
+          window.location.href = '/vehicles';
+        }, 1000);
+      } catch (err) {
+        showAlert('alertBox', err.message || 'Operation failed.');
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

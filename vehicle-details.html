@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vehicle Details – SafarSaathi</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="layout-container">
+    <div id="sidebar-container"></div>
+
+    <div class="main-wrapper">
+      <div id="topbar-container"></div>
+
+      <main class="page-content">
+        <div class="vehicle-details-page">
+          <!-- Back and Action Row -->
+          <div class="header-back-row">
+            <a href="/vehicles" class="btn btn-outline btn-sm">
+              <span>← Back to My Vehicles</span>
+            </a>
+            <div id="editBtnWrap"></div>
+          </div>
+
+          <div id="alertBox"></div>
+
+          <!-- Loading state -->
+          <div id="loadingBox" class="loading-state">
+            <div class="spinner"></div>
+            <p>Loading vehicle information...</p>
+          </div>
+
+          <!-- Main Vehicle Container -->
+          <div id="vehicleDetailsContent" style="display: none;">
+            <!-- Summary Header Card (Screenshot #7) -->
+            <div class="card summary-header-card">
+              <div class="summary-left">
+                <h2 class="vehicle-title-number" id="detailRegNumber">MH12 AB 1234</h2>
+                <div class="vehicle-car-image-box">
+                  <span class="car-big-icon" id="detailTypeIcon">🚗</span>
+                </div>
+              </div>
+
+              <div class="summary-details-grid">
+                <div class="detail-item">
+                  <span class="label">Brand</span>
+                  <span class="value" id="detailBrand">Maruti Suzuki</span>
+                </div>
+                <div class="detail-item">
+                  <span class="label">Model</span>
+                  <span class="value" id="detailModel">Swift VXi</span>
+                </div>
+                <div class="detail-item">
+                  <span class="label">Fuel Type</span>
+                  <span class="value" id="detailFuel">Petrol</span>
+                </div>
+                <div class="detail-item">
+                  <span class="label">Chassis Number</span>
+                  <span class="value code-font" id="detailChassis">MB1AJ3B3C4D5E6789</span>
+                </div>
+                <div class="detail-item">
+                  <span class="label">Registration Date</span>
+                  <span class="value" id="detailRegDate">10 Jan 2018</span>
+                </div>
+                <div class="detail-item">
+                  <span class="label">Insurance Valid Till</span>
+                  <span class="value" id="detailInsuranceExpiry">15 Aug 2025</span>
+                </div>
+                <div class="detail-item">
+                  <span class="label">Owner</span>
+                  <span class="value" id="detailOwner">Rahul Sharma</span>
+                </div>
+                <div class="detail-item">
+                  <span class="label">Location</span>
+                  <span class="value" id="detailLocation">Pune, Maharashtra</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4 Status Pill Cards (Screenshot #7) -->
+            <div class="grid-4 status-pills-grid">
+              <div class="stat-pill card">
+                <span class="pill-label">Insurance</span>
+                <span class="pill-value text-success" id="pillInsuranceStatus">Active</span>
+              </div>
+
+              <div class="stat-pill card">
+                <span class="pill-label">PUC Status</span>
+                <span class="pill-value text-success" id="pillPucStatus">Valid</span>
+              </div>
+
+              <div class="stat-pill card">
+                <span class="pill-label">Next Service</span>
+                <span class="pill-value text-info" id="pillServiceStatus">15 Days</span>
+              </div>
+
+              <div class="stat-pill card">
+                <span class="pill-label">Total Expenses</span>
+                <span class="pill-value text-dark" id="pillTotalExpenses">₹ 12,430</span>
+              </div>
+            </div>
+
+            <!-- Tabs Navigation Bar -->
+            <div class="tabs-nav-bar">
+              <button class="tab-btn active" id="tab-overview-btn" onclick="switchTab('overview')">Overview</button>
+              <button class="tab-btn" id="tab-documents-btn" onclick="switchTab('documents')">Documents (<span id="countDocs">0</span>)</button>
+              <button class="tab-btn" id="tab-fuel-btn" onclick="switchTab('fuel')">Fuel & Mileage (<span id="countFuel">0</span>)</button>
+              <button class="tab-btn" id="tab-insurance-btn" onclick="switchTab('insurance')">Insurance & Loan</button>
+              <button class="tab-btn" id="tab-services-btn" onclick="switchTab('services')">Service History (<span id="countServices">0</span>)</button>
+              <button class="tab-btn" id="tab-expenses-btn" onclick="switchTab('expenses')">Expenses (<span id="countExpenses">0</span>)</button>
+            </div>
+
+            <!-- TAB 1: OVERVIEW -->
+            <div id="tab-overview" class="card tab-content-card">
+              <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 16px;">
+                📋 Vehicle Specifications & Regional Registry
+              </h3>
+              <div class="table-responsive">
+                <table class="custom-table">
+                  <tbody>
+                    <tr>
+                      <th style="width: 30%;">Registration State / City</th>
+                      <td id="tableLocation">Maharashtra (MH-12 Pune RTO)</td>
+                    </tr>
+                    <tr>
+                      <th>Wheel / Body Classification</th>
+                      <td id="tableType">4 Wheeler Private Car</td>
+                    </tr>
+                    <tr>
+                      <th>Propulsion Fuel Type</th>
+                      <td id="tableFuelType">Petrol (BS-VI Compliant)</td>
+                    </tr>
+                    <tr>
+                      <th>Chassis Number (VIN)</th>
+                      <td class="code-font" id="tableChassis">MB1AJ3B3C4D5E6789</td>
+                    </tr>
+                    <tr>
+                      <th>Registered Owner Contact</th>
+                      <td id="tableContact">+91 9876543210</td>
+                    </tr>
+                    <tr>
+                      <th>Fitness Expiry (15-Year Rule)</th>
+                      <td id="tableFitness">Valid until 2033</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- TAB 2: DOCUMENTS VAULT (Screenshot #8) -->
+            <div id="tab-documents" class="card tab-content-card" style="display: none;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="font-size: 16px; font-weight: 700; color: #0f172a;">Digital Document Vault</h3>
+                <button class="btn btn-primary btn-sm" onclick="openUploadModal()">+ Upload New Document</button>
+              </div>
+              <p style="font-size: 13px; color: #64748b; margin-bottom: 16px;">
+                Store and access digital copies of your RC book, PUC, insurance, and driving licence.
+              </p>
+              <div id="documentsGrid" class="documents-grid"></div>
+            </div>
+
+            <!-- TAB 3: FUEL & MILEAGE (Module 4) -->
+            <div id="tab-fuel" class="card tab-content-card" style="display: none;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <div>
+                  <h3 style="font-size: 16px; font-weight: 700; color: #0f172a;">Fuel & Mileage History</h3>
+                  <p style="font-size: 13px; color: #64748b;">Distance and mileage calculated between consecutive full-tank refills.</p>
+                </div>
+                <button class="btn btn-primary btn-sm" onclick="openFuelModal()">+ Add Fuel Record</button>
+              </div>
+
+              <!-- Quick Metrics for Fuel -->
+              <div class="grid-4" style="margin-bottom: 20px;">
+                <div class="stat-card" style="padding: 12px 16px;">
+                  <div class="stat-info">
+                    <span class="stat-label">Total Fuel Cost</span>
+                    <span class="stat-value" id="detailFuelCost">₹0</span>
+                  </div>
+                </div>
+                <div class="stat-card" style="padding: 12px 16px;">
+                  <div class="stat-info">
+                    <span class="stat-label">Fuel Consumed</span>
+                    <span class="stat-value" id="detailFuelQuantity">0 L</span>
+                  </div>
+                </div>
+                <div class="stat-card" style="padding: 12px 16px;">
+                  <div class="stat-info">
+                    <span class="stat-label">Distance Travelled</span>
+                    <span class="stat-value" id="detailDistanceTravelled">0 km</span>
+                  </div>
+                </div>
+                <div class="stat-card" style="padding: 12px 16px;">
+                  <div class="stat-info">
+                    <span class="stat-label">Average Mileage</span>
+                    <span class="stat-value text-success" id="detailAvgMileage">0 km/l</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table class="custom-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Odometer</th>
+                      <th>Distance</th>
+                      <th>Fuel Quantity</th>
+                      <th>Cost</th>
+                      <th>Mileage</th>
+                      <th>Fuel Station</th>
+                    </tr>
+                  </thead>
+                  <tbody id="fuelTableBody">
+                    <tr><td colspan="7" style="text-align: center; color: #94a3b8;">No fuel records logged yet.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- TAB 4: INSURANCE & LOAN -->
+            <div id="tab-insurance" class="card tab-content-card" style="display: none;">
+              <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 16px;">
+                🛡️ Active Policy Details
+              </h3>
+              <div id="insuranceDetailBox">
+                <p>Loading insurance details...</p>
+              </div>
+            </div>
+
+            <!-- TAB 5: SERVICE HISTORY -->
+            <div id="tab-services" class="card tab-content-card" style="display: none;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="font-size: 16px; font-weight: 700; color: #0f172a;">Service & Maintenance Log</h3>
+                <button class="btn btn-primary btn-sm" onclick="openServiceModal()">+ Log Service</button>
+              </div>
+              <div class="table-responsive">
+                <table class="custom-table">
+                  <thead>
+                    <tr>
+                      <th>Service Date</th>
+                      <th>Type</th>
+                      <th>Odometer</th>
+                      <th>Cost</th>
+                      <th>Service Center</th>
+                      <th>Work Done</th>
+                    </tr>
+                  </thead>
+                  <tbody id="serviceTableBody">
+                    <tr><td colspan="6" style="text-align: center; color: #94a3b8;">No service records found.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- TAB 6: EXPENSES -->
+            <div id="tab-expenses" class="card tab-content-card" style="display: none;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="font-size: 16px; font-weight: 700; color: #0f172a;">Vehicle Expense Breakdown</h3>
+                <button class="btn btn-primary btn-sm" onclick="openExpenseModal()">+ Add Expense</button>
+              </div>
+              <div class="table-responsive">
+                <table class="custom-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Category</th>
+                      <th>Description</th>
+                      <th>Payment Method</th>
+                      <th>Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody id="expenseTableBody">
+                    <tr><td colspan="5" style="text-align: center; color: #94a3b8;">No expenses recorded yet.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Upload Document Modal -->
+  <div class="modal-overlay" id="uploadModal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Upload Vehicle Document</h3>
+        <button class="modal-close-btn" onclick="closeUploadModal()">✕</button>
+      </div>
+      <form id="uploadDocForm">
+        <div class="form-group">
+          <label class="form-label" for="docType">Document Type *</label>
+          <select id="docType" class="form-select" required>
+            <option value="RC Book">RC Book (Registration Certificate)</option>
+            <option value="Insurance">Insurance Policy Certificate</option>
+            <option value="PUC">Pollution Under Control (PUC) Certificate</option>
+            <option value="Driving Licence">Driving Licence</option>
+            <option value="Other">Other Document / Invoice</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="docName">Document Name / Title</label>
+          <input type="text" id="docName" class="form-control" placeholder="e.g. Comprehensive Policy Certificate">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="docFile">Choose File (PDF, PNG, JPG) *</label>
+          <input type="file" id="docFile" class="form-control" accept=".pdf,.png,.jpg,.jpeg" required>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeUploadModal()">Cancel</button>
+          <button type="submit" id="docUploadBtn" class="btn btn-primary">Upload to Vault</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Fuel Modal -->
+  <div class="modal-overlay" id="fuelModal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Log Fuel Refill</h3>
+        <button class="modal-close-btn" onclick="closeFuelModal()">✕</button>
+      </div>
+      <form id="fuelForm">
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label" for="fuelQuantity">Fuel Quantity (Litres) *</label>
+            <input type="number" id="fuelQuantity" class="form-control" step="0.01" placeholder="e.g. 28.5" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="fuelCost">Total Cost (₹) *</label>
+            <input type="number" id="fuelCost" class="form-control" placeholder="e.g. 2950" required>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label" for="fuelOdometer">Current Odometer (km) *</label>
+            <input type="number" id="fuelOdometer" class="form-control" placeholder="e.g. 42500" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="fuelDate">Refill Date *</label>
+            <input type="date" id="fuelDate" class="form-control" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="fuelStation">Fuel Station / Location</label>
+          <input type="text" id="fuelStation" class="form-control" placeholder="e.g. Indian Oil, FC Road, Pune">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeFuelModal()">Cancel</button>
+          <button type="submit" id="saveFuelBtn" class="btn btn-primary">Save Fuel Record</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/navbar.js"></script>
+  <script src="/js/vehicle-details.js"></script>
+</body>
+</html>

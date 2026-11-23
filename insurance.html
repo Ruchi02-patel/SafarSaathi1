@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Insurance & Loans – SafarSaathi</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="layout-container">
+    <div id="sidebar-container"></div>
+
+    <div class="main-wrapper">
+      <div id="topbar-container"></div>
+
+      <main class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Insurance & Vehicle Loans</h1>
+            <p class="page-subtitle">Compare IRDAI-approved insurance policies, manage active coverage, and calculate financing EMIs.</p>
+          </div>
+        </div>
+
+        <div id="alertBox"></div>
+
+        <!-- 3 Tab Navigation (Screenshot #9) -->
+        <div class="tabs-nav-bar">
+          <button class="tab-btn active" id="btn-plans" onclick="switchInsTab('plans')">Compare Insurance Plans</button>
+          <button class="tab-btn" id="btn-policies" onclick="switchInsTab('policies')">My Active Policies (<span id="policiesCount">0</span>)</button>
+          <button class="tab-btn" id="btn-loan" onclick="switchInsTab('loan')">Vehicle Loan EMI Calculator</button>
+        </div>
+
+        <!-- TAB 1: COMPARE INSURANCE PLANS (Screenshot #9) -->
+        <div id="ins-tab-plans" class="card tab-content-card">
+          <div style="margin-bottom: 20px;">
+            <h2 class="card-title" style="margin-bottom: 6px;">Compare Leading Motor Insurance Plans</h2>
+            <p style="color: #64748b; font-size: 13.5px;">All policies include Zero Depreciation, 24x7 Roadside Assistance, and Cashless Garages across India.</p>
+          </div>
+
+          <div class="table-responsive">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>Insurance Company</th>
+                  <th>Plan Name</th>
+                  <th>Coverage Type</th>
+                  <th>Sum Insured (IDV)</th>
+                  <th>Annual Premium</th>
+                  <th>Features Included</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="plansTableBody">
+                <tr><td colspan="7" style="text-align: center; color: #94a3b8;">Loading insurance plans...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 2: MY POLICIES -->
+        <div id="ins-tab-policies" class="card tab-content-card" style="display: none;">
+          <div class="card-header">
+            <h2 class="card-title">My Registered Policies</h2>
+          </div>
+          <div id="myPoliciesList" class="grid-2">
+            <div class="empty-state" style="grid-column: 1 / -1;">
+              <p>Loading your policies...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: VEHICLE LOAN EMI CALCULATOR & APPLICATION -->
+        <div id="ins-tab-loan" class="card tab-content-card" style="display: none;">
+          <h2 class="card-title" style="margin-bottom: 8px;">Vehicle Loan Financing & EMI Calculator</h2>
+          <p style="color: #64748b; font-size: 14px; margin-bottom: 24px;">Compute your monthly repayment and apply for loan pre-approval directly through SafarSaathi.</p>
+
+          <div class="grid-2" style="gap: 32px; align-items: flex-start;">
+            <!-- EMI Calculator Controls -->
+            <div class="card" style="background: #f8fafc; border: 1px solid var(--border-color); padding: 24px;">
+              <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 20px;">🧮 Interactive EMI Calculator</h3>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between;">
+                  <label class="form-label">Loan Amount (₹)</label>
+                  <strong id="lblLoanAmount" style="color: #1e62ff;">₹ 5,00,000</strong>
+                </div>
+                <input type="range" id="rngAmount" min="50000" max="2500000" step="10000" value="500000" class="form-control" oninput="calculateEMI()">
+              </div>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between;">
+                  <label class="form-label">Interest Rate (% p.a.)</label>
+                  <strong id="lblInterestRate" style="color: #1e62ff;">9.5%</strong>
+                </div>
+                <input type="range" id="rngRate" min="7" max="16" step="0.1" value="9.5" class="form-control" oninput="calculateEMI()">
+              </div>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between;">
+                  <label class="form-label">Loan Tenure (Months)</label>
+                  <strong id="lblTenure" style="color: #1e62ff;">48 Months (4 Years)</strong>
+                </div>
+                <input type="range" id="rngTenure" min="12" max="84" step="6" value="48" class="form-control" oninput="calculateEMI()">
+              </div>
+
+              <!-- Output Box -->
+              <div style="background: #ffffff; border-radius: 10px; border: 1px solid #bfdbfe; padding: 20px; text-align: center; margin-top: 20px;">
+                <span style="font-size: 13px; font-weight: 600; color: #64748b; text-transform: uppercase;">Estimated Monthly EMI</span>
+                <div id="emiResult" style="font-size: 32px; font-weight: 900; color: #1e62ff; margin-top: 4px;">₹ 12,568 / mo</div>
+                <div style="display: flex; justify-content: space-around; margin-top: 16px; font-size: 13px; color: #475569;">
+                  <div>
+                    <span style="display: block; color: #94a3b8;">Total Interest</span>
+                    <strong id="totalInterestResult">₹ 1,03,264</strong>
+                  </div>
+                  <div>
+                    <span style="display: block; color: #94a3b8;">Total Amount Payable</span>
+                    <strong id="totalPaymentResult">₹ 6,03,264</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Direct Loan Application Form -->
+            <div class="card" style="padding: 24px;">
+              <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 16px;">📝 Apply for Loan Pre-Approval</h3>
+              <div id="loanAlertBox"></div>
+              <form id="loanAppForm">
+                <div class="form-group">
+                  <label class="form-label" for="loanVehicle">Vehicle for Financing *</label>
+                  <select id="loanVehicle" class="form-select" required></select>
+                </div>
+
+                <div class="grid-2">
+                  <div class="form-group">
+                    <label class="form-label" for="appAmount">Requested Loan Amount (₹) *</label>
+                    <input type="number" id="appAmount" class="form-control" value="500000" min="10000" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="appTenure">Tenure (Months) *</label>
+                    <input type="number" id="appTenure" class="form-control" value="48" min="6" max="84" required>
+                  </div>
+                </div>
+
+                <div class="grid-2">
+                  <div class="form-group">
+                    <label class="form-label" for="monthlyIncome">Monthly Income (₹) *</label>
+                    <input type="number" id="monthlyIncome" class="form-control" placeholder="e.g. 65000" min="1000" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="employmentType">Employment Type *</label>
+                    <select id="employmentType" class="form-select" required>
+                      <option value="Salaried">Salaried Professional</option>
+                      <option value="Self-Employed">Self-Employed / Freelance</option>
+                      <option value="Business">Business Owner</option>
+                      <option value="Professional">Doctor / CA / Lawyer</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="preferredBank">Preferred Lending Partner</label>
+                  <select id="preferredBank" class="form-select">
+                    <option value="HDFC Bank">HDFC Bank Auto Finance (8.95%)</option>
+                    <option value="SBI Auto Loans">State Bank of India Car Loan (8.75%)</option>
+                    <option value="ICICI Bank">ICICI Bank Auto Loan (9.10%)</option>
+                    <option value="Kotak Prime">Kotak Prime Vehicle Loan (9.25%)</option>
+                  </select>
+                </div>
+
+                <button type="submit" id="loanSubmitBtn" class="btn btn-primary btn-block btn-lg" style="margin-top: 14px;">
+                  <span>Submit Loan Application</span>
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- User's Submitted Loan Requests Table -->
+          <div class="card" style="margin-top: 24px; padding: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin: 0;">
+                📋 My Submitted Loan Applications
+              </h3>
+              <button class="btn btn-outline btn-sm" onclick="loadMyLoans()">🔄 Refresh</button>
+            </div>
+
+            <div id="myLoansLoading" style="display: none; text-align: center; padding: 16px; color: #64748b;">
+              Loading your loan applications...
+            </div>
+
+            <div id="myLoansEmpty" style="display: none; text-align: center; padding: 20px; color: #64748b;">
+              <p style="margin: 0;">You have not submitted any loan applications yet.</p>
+            </div>
+
+            <div class="table-responsive" id="myLoansTableContainer" style="display: none;">
+              <table class="custom-table" style="font-size: 13.5px;">
+                <thead>
+                  <tr>
+                    <th>Vehicle</th>
+                    <th>Loan Amount</th>
+                    <th>Tenure & EMI</th>
+                    <th>Lender</th>
+                    <th>Applied Date</th>
+                    <th>Status</th>
+                    <th>Admin Remarks</th>
+                  </tr>
+                </thead>
+                <tbody id="myLoansTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Apply Insurance Modal -->
+        <div class="modal-overlay" id="insuranceModal" style="display: none;">
+          <div class="modal-content" style="max-width: 520px; background: #fff; border-radius: 12px; padding: 24px;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h3 class="modal-title" style="margin: 0; font-size: 18px; font-weight: 700;">Apply for Motor Insurance Policy</h3>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="closeInsuranceModal()">✕</button>
+            </div>
+            <form id="insuranceApplyForm" onsubmit="submitInsuranceApplication(event)">
+              <div id="insModalAlertBox"></div>
+              
+              <div class="form-group mb-3">
+                <label class="form-label">Selected Plan</label>
+                <input type="text" id="insPlanDisplay" class="form-control" readonly style="background:#f8fafc; font-weight:600;">
+              </div>
+              
+              <div class="form-group mb-3">
+                <label class="form-label">Annual Premium (₹)</label>
+                <input type="text" id="insPremiumDisplay" class="form-control" readonly style="background:#f8fafc; color:#1e62ff; font-weight:700;">
+              </div>
+              
+              <div class="form-group mb-3">
+                <label class="form-label">Select Your Registered Vehicle *</label>
+                <select id="insVehicleSelect" class="form-control" required>
+                  <option value="">-- Choose Registered Vehicle --</option>
+                </select>
+              </div>
+              
+              <div class="form-group mb-3">
+                <label class="form-label">Coverage Start Date *</label>
+                <input type="date" id="insStartDate" class="form-control" required>
+              </div>
+
+              <input type="hidden" id="insProvider">
+              <input type="hidden" id="insPlanType">
+              <input type="hidden" id="insPremium">
+
+              <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                <button type="button" class="btn btn-secondary" onclick="closeInsuranceModal()">Cancel</button>
+                <button type="submit" id="insSubmitBtn" class="btn btn-primary">✅ Confirm & Activate Policy</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/navbar.js"></script>
+  <script>
+    let insurancePlans = [];
+    let myPolicies = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!requireAuth()) return;
+      initInsurancePage();
+      calculateEMI();
+    });
+
+    async function initInsurancePage() {
+      try {
+        const vRes = await apiGet('/vehicles');
+        const vehicles = vRes.vehicles || vRes.data || [];
+        userVehicles = vehicles;
+        const loanVehSelect = document.getElementById('loanVehicle');
+        const insVehSelect = document.getElementById('insVehicleSelect');
+        loanVehSelect.innerHTML = '';
+        if (insVehSelect) insVehSelect.innerHTML = '';
+
+        if (vehicles.length === 0) {
+          loanVehSelect.innerHTML = '<option value="">No vehicles found - please register a vehicle first</option>';
+          if (insVehSelect) insVehSelect.innerHTML = '<option value="">No vehicles registered</option>';
+        } else {
+          loanVehSelect.innerHTML = '<option value="">-- Select Registered Vehicle for Financing --</option>';
+          if (insVehSelect) insVehSelect.innerHTML = '<option value="">-- Choose Registered Vehicle --</option>';
+          vehicles.forEach(v => {
+            const opt = `<option value="${v._id}">${v.vehicleNumber} – ${v.brand} ${v.model}</option>`;
+            loanVehSelect.innerHTML += opt;
+            if (insVehSelect) insVehSelect.innerHTML += opt;
+          });
+          // Default select the first vehicle
+          if (vehicles.length > 0) {
+            loanVehSelect.value = vehicles[0]._id;
+            if (insVehSelect) insVehSelect.value = vehicles[0]._id;
+          }
+        }
+
+        loadPlans();
+        loadPolicies();
+        loadMyLoans();
+      } catch (err) {
+        console.error('Failed to initialize insurance page:', err);
+      }
+    }
+
+    async function loadMyLoans() {
+      const loading = document.getElementById('myLoansLoading');
+      const empty = document.getElementById('myLoansEmpty');
+      const container = document.getElementById('myLoansTableContainer');
+      const tbody = document.getElementById('myLoansTableBody');
+
+      if (!loading) return;
+      loading.style.display = 'block';
+      empty.style.display = 'none';
+      container.style.display = 'none';
+
+      try {
+        const res = await apiGet('/loans/my-loans');
+        const loans = res.loans || res.data || [];
+
+        if (loans.length === 0) {
+          empty.style.display = 'block';
+          return;
+        }
+
+        tbody.innerHTML = loans.map(l => {
+          const vText = l.vehicleId ? `${l.vehicleId.brand} ${l.vehicleId.model} (${l.vehicleId.vehicleNumber})` : 'Vehicle';
+          const dateStr = l.appliedDate || l.createdAt;
+          const formattedDate = dateStr ? new Date(dateStr).toLocaleDateString('en-IN', {
+            day: 'numeric', month: 'short', year: 'numeric'
+          }) : 'N/A';
+
+          let statusBadge = 'badge-warning';
+          if (l.status === 'Approved') statusBadge = 'badge-success';
+          if (l.status === 'Rejected') statusBadge = 'badge-danger';
+
+          return `
+            <tr>
+              <td><strong>${vText}</strong></td>
+              <td><strong style="color: #1e62ff;">₹ ${(l.loanAmount || 0).toLocaleString('en-IN')}</strong></td>
+              <td>${l.tenureMonths || 36} Mos (₹ ${(l.estimatedEmi || 0).toLocaleString('en-IN')}/mo)</td>
+              <td>${l.bankName || 'HDFC Bank'}</td>
+              <td>${formattedDate}</td>
+              <td><span class="badge ${statusBadge}">${l.status}</span></td>
+              <td style="color: #64748b; font-size: 12.5px;">${l.remarks || 'Pending Underwriter Review'}</td>
+            </tr>
+          `;
+        }).join('');
+
+        container.style.display = 'block';
+      } catch (err) {
+        console.error('Failed to load my loans:', err);
+      } finally {
+        loading.style.display = 'none';
+      }
+    }
+
+    async function loadPlans() {
+      try {
+        const res = await apiGet('/insurance/plans');
+        insurancePlans = res.plans || res.data || [];
+
+        const tbody = document.getElementById('plansTableBody');
+        if (insurancePlans.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No plans currently listed.</td></tr>';
+          return;
+        }
+
+        let html = '';
+        insurancePlans.forEach(p => {
+          const featuresList = (p.features || []).slice(0, 3).join(', ');
+          html += `
+            <tr>
+              <td><strong>${p.companyName}</strong></td>
+              <td>${p.planName}</td>
+              <td><span class="badge badge-info">${p.planType}</span></td>
+              <td>₹ ${p.coverageAmount ? p.coverageAmount.toLocaleString('en-IN') : '5,00,000'}</td>
+              <td><strong style="color: #1e62ff; font-size: 15px;">₹ ${p.premiumAmount ? p.premiumAmount.toLocaleString('en-IN') : '11,000'}</strong> / yr</td>
+              <td style="font-size: 12.5px; color: #475569;">${featuresList}</td>
+              <td>
+                <button class="btn btn-outline btn-sm" onclick="applyPlan('${p.companyName}', '${p.planName}', ${p.premiumAmount || 12000})">Apply Now</button>
+              </td>
+            </tr>
+          `;
+        });
+
+        tbody.innerHTML = html;
+      } catch (err) {
+        document.getElementById('plansTableBody').innerHTML = `<tr><td colspan="7" class="text-danger" style="text-align:center;">Failed to load plans: ${err.message}</td></tr>`;
+      }
+    }
+
+    async function loadPolicies() {
+      try {
+        const res = await apiGet('/insurance/my-policies');
+        myPolicies = res.policies || res.data || [];
+        document.getElementById('policiesCount').textContent = myPolicies.length;
+
+        const container = document.getElementById('myPoliciesList');
+        if (myPolicies.length === 0) {
+          container.innerHTML = `
+            <div class="card empty-card" style="grid-column: 1 / -1;">
+              <div class="empty-icon">🛡️</div>
+              <h3>No Active Insurance Policies</h3>
+              <p>Explore our comparison matrix above to choose coverage for your vehicle.</p>
+              <button class="btn btn-primary" onclick="switchInsTab('plans')" style="margin-top: 12px;">Compare Plans</button>
+            </div>
+          `;
+          return;
+        }
+
+        let html = '';
+        myPolicies.forEach(p => {
+          const vNum = p.vehicleId ? (p.vehicleId.vehicleNumber || 'Vehicle') : 'Vehicle';
+          const expDate = p.expiryDate ? new Date(p.expiryDate).toLocaleDateString('en-IN', {
+            day: 'numeric', month: 'short', year: 'numeric'
+          }) : '15 Aug 2025';
+
+          html += `
+            <div class="card" style="border-left: 4px solid #10b981;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                <div>
+                  <h3 style="font-size: 16px; font-weight: 800; color: #0f172a;">${p.provider || p.companyName || 'Motor Insurance'}</h3>
+                  <span class="badge badge-info" style="margin-top: 4px;">${vNum}</span>
+                </div>
+                <span class="badge badge-success">${p.status || 'Active'}</span>
+              </div>
+              <div style="font-size: 13.5px; color: #475569; display: flex; flex-direction: column; gap: 6px;">
+                <div>Policy No: <strong class="code-font">${p.policyNumber || 'POL-789456123'}</strong></div>
+                <div>Plan: <strong>${p.planType || 'Comprehensive Protection'}</strong></div>
+                <div>Valid Till: <strong>${expDate}</strong></div>
+                <div>Annual Premium: <strong>₹ ${(p.premium || 12421).toLocaleString('en-IN')}</strong></div>
+              </div>
+            </div>
+          `;
+        });
+
+        container.innerHTML = html;
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function switchInsTab(tab) {
+      document.getElementById('ins-tab-plans').style.display = tab === 'plans' ? 'block' : 'none';
+      document.getElementById('ins-tab-policies').style.display = tab === 'policies' ? 'block' : 'none';
+      document.getElementById('ins-tab-loan').style.display = tab === 'loan' ? 'block' : 'none';
+
+      document.getElementById('btn-plans').classList.toggle('active', tab === 'plans');
+      document.getElementById('btn-policies').classList.toggle('active', tab === 'policies');
+      document.getElementById('btn-loan').classList.toggle('active', tab === 'loan');
+
+      if (tab === 'loan') {
+        loadMyLoans();
+      }
+    }
+
+    // Formula: EMI = [P x R x (1+R)^N] / [(1+R)^N - 1]
+    function calculateEMI() {
+      const P = Number(document.getElementById('rngAmount').value);
+      const annualRate = Number(document.getElementById('rngRate').value);
+      const N = Number(document.getElementById('rngTenure').value);
+
+      document.getElementById('lblLoanAmount').textContent = '₹ ' + P.toLocaleString('en-IN');
+      document.getElementById('lblInterestRate').textContent = annualRate + '%';
+      document.getElementById('lblTenure').textContent = N + ' Months (' + (N / 12).toFixed(1) + ' Yrs)';
+
+      const r = (annualRate / 12) / 100;
+      const emi = Math.round((P * r * Math.pow(1 + r, N)) / (Math.pow(1 + r, N) - 1));
+      const totalPayment = emi * N;
+      const totalInterest = totalPayment - P;
+
+      document.getElementById('emiResult').textContent = '₹ ' + emi.toLocaleString('en-IN') + ' / mo';
+      document.getElementById('totalInterestResult').textContent = '₹ ' + totalInterest.toLocaleString('en-IN');
+      document.getElementById('totalPaymentResult').textContent = '₹ ' + totalPayment.toLocaleString('en-IN');
+
+      // Sync form input
+      const appAmountInput = document.getElementById('appAmount');
+      if (appAmountInput) appAmountInput.value = P;
+      const appTenureInput = document.getElementById('appTenure');
+      if (appTenureInput) appTenureInput.value = N;
+    }
+
+    function applyPlan(company, plan, premium) {
+      document.getElementById('insPlanDisplay').value = `${company} – ${plan}`;
+      document.getElementById('insPremiumDisplay').value = `₹ ${Number(premium).toLocaleString('en-IN')} / year`;
+      document.getElementById('insProvider').value = company;
+      document.getElementById('insPlanType').value = plan;
+      document.getElementById('insPremium').value = premium;
+      document.getElementById('insStartDate').value = new Date().toISOString().split('T')[0];
+      
+      const insVehSelect = document.getElementById('insVehicleSelect');
+      if (insVehSelect && userVehicles.length > 0) {
+        insVehSelect.innerHTML = '<option value="">-- Choose Registered Vehicle --</option>';
+        userVehicles.forEach(v => {
+          insVehSelect.innerHTML += `<option value="${v._id}">${v.vehicleNumber} – ${v.brand} ${v.model}</option>`;
+        });
+        insVehSelect.value = userVehicles[0]._id;
+      }
+
+      document.getElementById('insuranceModal').style.display = 'flex';
+    }
+
+    function closeInsuranceModal() {
+      document.getElementById('insuranceModal').style.display = 'none';
+      const alertBox = document.getElementById('insModalAlertBox');
+      if (alertBox) alertBox.innerHTML = '';
+    }
+
+    async function submitInsuranceApplication(e) {
+      e.preventDefault();
+      const vehicleId = document.getElementById('insVehicleSelect').value;
+      const provider = document.getElementById('insProvider').value;
+      const planType = document.getElementById('insPlanType').value;
+      const premium = Number(document.getElementById('insPremium').value);
+      const startDate = document.getElementById('insStartDate').value;
+      const btn = document.getElementById('insSubmitBtn');
+
+      if (!vehicleId) {
+        showAlert('insModalAlertBox', 'Please select a vehicle to insure.', 'danger');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Activating Policy...';
+
+      try {
+        const start = new Date(startDate);
+        const expiry = new Date(start);
+        expiry.setFullYear(expiry.getFullYear() + 1);
+
+        await apiPost('/insurance/apply', {
+          vehicleId,
+          provider,
+          planType,
+          policyNumber: 'POL-' + Math.floor(100000000 + Math.random() * 900000000),
+          premium,
+          startDate: start,
+          expiryDate: expiry,
+          coverageDetails: `Annual comprehensive policy under ${provider} - ${planType}`
+        });
+
+        closeInsuranceModal();
+        showAlert('alertBox', `🎉 Insurance Policy Successfully Activated! Coverage is now live for your vehicle.`, 'success');
+        switchInsTab('policies');
+        await loadPolicies();
+      } catch (err) {
+        showAlert('insModalAlertBox', 'Policy activation failed: ' + err.message, 'danger');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '✅ Confirm & Activate Policy';
+      }
+    }
+
+    document.getElementById('loanAppForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const vehicleId = document.getElementById('loanVehicle').value;
+      const amount = Number(document.getElementById('appAmount').value);
+      const tenure = Number(document.getElementById('appTenure').value);
+      const income = Number(document.getElementById('monthlyIncome').value);
+      const employmentType = document.getElementById('employmentType').value;
+      const bank = document.getElementById('preferredBank').value;
+      const btn = document.getElementById('loanSubmitBtn');
+
+      if (!vehicleId) {
+        showAlert('loanAlertBox', 'Please select a registered vehicle for loan financing.', 'danger');
+        return;
+      }
+
+      if (!amount || amount <= 0) {
+        showAlert('loanAlertBox', 'Please enter a valid loan amount.', 'danger');
+        return;
+      }
+
+      if (!tenure || tenure <= 0) {
+        showAlert('loanAlertBox', 'Please enter a valid loan tenure in months.', 'danger');
+        return;
+      }
+
+      if (!income || income <= 0) {
+        showAlert('loanAlertBox', 'Please enter your monthly income.', 'danger');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Submitting Application...';
+
+      try {
+        const response = await apiPost('/loans/apply', {
+          vehicleId,
+          loanAmount: amount,
+          tenureMonths: tenure,
+          monthlyIncome: income,
+          employmentType,
+          bankName: bank,
+          lenderName: bank,
+          interestRate: 8.5
+        });
+
+        showAlert('loanAlertBox', 'Loan application submitted successfully! It is now pending Administrator review.', 'success');
+        showAlert('alertBox', 'Loan application submitted successfully! It is now pending Administrator review.', 'success');
+        document.getElementById('monthlyIncome').value = '';
+        await loadMyLoans();
+      } catch (err) {
+        showAlert('loanAlertBox', 'Application failed: ' + err.message, 'danger');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Submit Loan Application';
+      }
+    });
+  </script>
+</body>
+</html>

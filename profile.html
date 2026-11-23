@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile & Account Settings – SafarSaathi</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="layout-container">
+    <div id="sidebar-container"></div>
+
+    <div class="main-wrapper">
+      <div id="topbar-container"></div>
+
+      <main class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">My Profile & Account Settings</h1>
+            <p class="page-subtitle">Manage your personal credentials, contact numbers, primary residence, and security settings.</p>
+          </div>
+        </div>
+
+        <div id="alertBox"></div>
+
+        <div class="grid-3 mb-4" style="align-items: flex-start;">
+          <!-- Left Column: User Summary Card -->
+          <div class="card text-center" style="padding: 24px;">
+            <div id="profileAvatar" style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #1e62ff, #0d2238); color: #fff; font-size: 32px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+              U
+            </div>
+
+            <h2 id="summaryName" style="font-size: 20px; font-weight: 800; color: var(--text-dark); margin-bottom: 4px;">User Name</h2>
+            <p id="summaryEmail" style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">user@example.com</p>
+
+            <div style="display:flex; justify-content:center; gap:8px; margin-bottom:20px;">
+              <span id="summaryAccountBadge" class="badge badge-primary">Individual Owner</span>
+              <span class="badge badge-success">Verified Active</span>
+            </div>
+
+            <div style="background:#f8fafc; border-radius:8px; padding:14px; text-align:left; font-size:13px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                <span style="color:#64748b;">Registered Vehicles:</span>
+                <strong id="summaryVehiclesCount" style="color:#1e62ff;">0 Vehicles</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                <span style="color:#64748b;">Primary City:</span>
+                <strong id="summaryCity" style="color:#1e293b;">--</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between;">
+                <span style="color:#64748b;">Account State:</span>
+                <strong id="summaryState" style="color:#1e293b;">--</strong>
+              </div>
+            </div>
+
+            <div style="margin-top:20px;">
+              <a href="/vehicles" class="btn btn-outline btn-sm" style="width:100%;">
+                🚗 Manage My Fleet
+              </a>
+            </div>
+          </div>
+
+          <!-- Middle & Right Columns: Edit Information & Security -->
+          <div style="grid-column: span 2; display:flex; flex-direction:column; gap:24px;">
+            <!-- Profile Details Form -->
+            <div class="card">
+              <h3 style="font-size:17px; font-weight:700; color:var(--text-dark); margin-bottom:16px;">
+                👤 Personal & Contact Information
+              </h3>
+
+              <form id="profileForm" onsubmit="updateProfileDetails(event)">
+                <div class="grid-2">
+                  <div class="form-group mb-3">
+                    <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                    <input type="text" id="profFullName" class="form-control" required>
+                  </div>
+                  <div class="form-group mb-3">
+                    <label class="form-label">Email Address (Registered Login)</label>
+                    <input type="email" id="profEmail" class="form-control" readonly style="background:#f1f5f9; cursor:not-allowed;" title="Email cannot be modified directly">
+                  </div>
+                </div>
+
+                <div class="grid-2">
+                  <div class="form-group mb-3">
+                    <label class="form-label">Contact Phone Number <span class="text-danger">*</span></label>
+                    <input type="tel" id="profPhone" class="form-control" required placeholder="10-digit mobile number">
+                  </div>
+                  <div class="form-group mb-3">
+                    <label class="form-label">Account Type</label>
+                    <input type="text" id="profAccountType" class="form-control" readonly style="background:#f1f5f9; cursor:not-allowed;">
+                  </div>
+                </div>
+
+                <div class="form-group mb-3">
+                  <label class="form-label">Address / Locality</label>
+                  <input type="text" id="profAddress" class="form-control" placeholder="Street, Flat/House No., Locality">
+                </div>
+
+                <div class="grid-2">
+                  <div class="form-group mb-3">
+                    <label class="form-label">City</label>
+                    <select id="profCity" class="form-control">
+                      <option value="">Select a city</option>
+                      <option value="Ahmedabad">Ahmedabad</option>
+                      <option value="Surat">Surat</option>
+                      <option value="Vadodara">Vadodara</option>
+                      <option value="Rajkot">Rajkot</option>
+                      <option value="Gandhinagar">Gandhinagar</option>
+                      <option value="Anand">Anand</option>
+                      <option value="Nadiad">Nadiad</option>
+                      <option value="Bharuch">Bharuch</option>
+                      <option value="Ankleshwar">Ankleshwar</option>
+                      <option value="Valsad">Valsad</option>
+                      <option value="Navsari">Navsari</option>
+                      <option value="Junagadh">Junagadh</option>
+                      <option value="Jamnagar">Jamnagar</option>
+                      <option value="Bhavnagar">Bhavnagar</option>
+                      <option value="Morbi">Morbi</option>
+                      <option value="Mehsana">Mehsana</option>
+                      <option value="Palanpur">Palanpur</option>
+                      <option value="Porbandar">Porbandar</option>
+                      <option value="Godhra">Godhra</option>
+                      <option value="Dahod">Dahod</option>
+                      <option value="Surendranagar">Surendranagar</option>
+                      <option value="Amreli">Amreli</option>
+                      <option value="Botad">Botad</option>
+                      <option value="Patan">Patan</option>
+                      <option value="Himmatnagar">Himmatnagar</option>
+                    </select>
+                  </div>
+                  <div class="form-group mb-3">
+                    <label class="form-label">State</label>
+                    <input type="text" id="profState" class="form-control" placeholder="e.g. Gujarat" value="Gujarat">
+                  </div>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; margin-top:10px;">
+                  <button type="submit" id="saveProfBtn" class="btn btn-primary">
+                    <span>💾 Save Profile Changes</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Change Password Form -->
+            <div class="card">
+              <h3 style="font-size:17px; font-weight:700; color:var(--text-dark); margin-bottom:16px;">
+                🔒 Change Account Password
+              </h3>
+
+              <form id="passwordForm" onsubmit="updatePassword(event)">
+                <div class="form-group mb-3">
+                  <label class="form-label">Current Password <span class="text-danger">*</span></label>
+                  <input type="password" id="currentPassword" class="form-control" required placeholder="Enter your current password">
+                </div>
+
+                <div class="grid-2">
+                  <div class="form-group mb-3">
+                    <label class="form-label">New Password <span class="text-danger">*</span></label>
+                    <input type="password" id="newPassword" class="form-control" required minlength="6" placeholder="Min. 6 characters">
+                  </div>
+                  <div class="form-group mb-3">
+                    <label class="form-label">Confirm New Password <span class="text-danger">*</span></label>
+                    <input type="password" id="confirmPassword" class="form-control" required minlength="6" placeholder="Repeat new password">
+                  </div>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; margin-top:10px;">
+                  <button type="submit" id="passBtn" class="btn btn-secondary">
+                    <span>🔑 Update Password</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/navbar.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      renderNavbar();
+      loadUserProfile();
+    });
+
+    async function loadUserProfile() {
+      try {
+        const response = await apiGet('/users/profile');
+        const user = response.user;
+        const vehicleCount = response.vehicleCount || 0;
+
+        // Render Summary
+        const initial = (user.fullName ? user.fullName.charAt(0) : 'U').toUpperCase();
+        document.getElementById('profileAvatar').textContent = initial;
+        document.getElementById('summaryName').textContent = user.fullName || 'User';
+        document.getElementById('summaryEmail').textContent = user.email || '';
+        document.getElementById('summaryAccountBadge').textContent = user.accountType === 'Business' ? '🏢 Fleet Business' : '🚗 Individual Owner';
+        document.getElementById('summaryVehiclesCount').textContent = `${vehicleCount} Vehicles`;
+        document.getElementById('summaryCity').textContent = user.city || 'Pune';
+        document.getElementById('summaryState').textContent = user.state || 'Maharashtra';
+
+        // Fill Form
+        document.getElementById('profFullName').value = user.fullName || '';
+        document.getElementById('profEmail').value = user.email || '';
+        document.getElementById('profPhone').value = user.phone || '';
+        document.getElementById('profAccountType').value = user.accountType || 'Individual';
+        document.getElementById('profAddress').value = user.address || '';
+        document.getElementById('profCity').value = user.city || '';
+        document.getElementById('profState').value = user.state || '';
+      } catch (err) {
+        showAlert('alertBox', 'danger', 'Failed to load profile details: ' + err.message);
+      }
+    }
+
+    async function updateProfileDetails(e) {
+      e.preventDefault();
+      const saveBtn = document.getElementById('saveProfBtn');
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<span>Saving...</span>';
+
+      const payload = {
+        fullName: document.getElementById('profFullName').value.trim(),
+        phone: document.getElementById('profPhone').value.trim(),
+        address: document.getElementById('profAddress').value.trim(),
+        city: document.getElementById('profCity').value.trim(),
+        state: document.getElementById('profState').value.trim()
+      };
+
+      try {
+        const response = await apiPut('/users/profile', payload);
+        showAlert('alertBox', 'success', 'Profile details updated successfully!');
+        
+        // Update user in localStorage
+        const currentUser = getUser() || {};
+        const updated = Object.assign({}, currentUser, payload);
+        setUser(updated);
+
+        // Re-render navbar to reflect updated name and city
+        renderNavbar();
+        await loadUserProfile();
+      } catch (err) {
+        showAlert('alertBox', 'danger', 'Update failed: ' + err.message);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<span>💾 Save Profile Changes</span>';
+      }
+    }
+
+    async function updatePassword(e) {
+      e.preventDefault();
+      const passBtn = document.getElementById('passBtn');
+      const currentPassword = document.getElementById('currentPassword').value;
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if (newPassword !== confirmPassword) {
+        showAlert('alertBox', 'warning', 'New password and confirm password do not match.');
+        return;
+      }
+
+      passBtn.disabled = true;
+      passBtn.innerHTML = '<span>Updating...</span>';
+
+      try {
+        await apiPut('/users/change-password', { currentPassword, newPassword });
+        showAlert('alertBox', 'success', 'Password changed successfully! Keep your credentials confidential.');
+        document.getElementById('passwordForm').reset();
+      } catch (err) {
+        showAlert('alertBox', 'danger', 'Password change failed: ' + err.message);
+      } finally {
+        passBtn.disabled = false;
+        passBtn.innerHTML = '<span>🔑 Update Password</span>';
+      }
+    }
+  </script>
+</body>
+</html>

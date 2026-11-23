@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard & Analytics – SafarSaathi</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    .admin-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .admin-bar-label {
+      width: 140px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+    .admin-bar-outer {
+      flex: 1;
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .admin-bar-inner {
+      height: 100%;
+      background: #1e62ff;
+      border-radius: 6px;
+      transition: width 0.5s ease;
+    }
+    .admin-bar-count {
+      width: 45px;
+      text-align: right;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+  </style>
+</head>
+<body>
+  <div class="layout-container">
+    <div id="admin-sidebar-container"></div>
+
+    <div class="main-wrapper">
+      <div id="admin-topbar-container"></div>
+
+      <main class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">SafarSaathi Administrator Console</h1>
+            <p class="page-subtitle">Master command center: System metrics, registered users, vehicle fleet distribution, and administrative operations.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-primary" onclick="loadDashboard()">
+              <span>🔄 Refresh Data</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="alertBox"></div>
+
+        <!-- 8 Core Admin Metric Counters -->
+        <div class="grid-4 stats-grid mb-4">
+          <div class="stat-card" style="border-left: 4px solid #1e62ff;">
+            <div class="stat-icon blue">👥</div>
+            <div class="stat-info">
+              <span class="stat-label">Registered Citizens</span>
+              <span class="stat-value" id="statUsers">0</span>
+            </div>
+          </div>
+          <div class="stat-card" style="border-left: 4px solid #10b981;">
+            <div class="stat-icon green">🚗</div>
+            <div class="stat-info">
+              <span class="stat-label">Total Fleet Vehicles</span>
+              <span class="stat-value" id="statVehicles">0</span>
+            </div>
+          </div>
+          <div class="stat-card" style="border-left: 4px solid #f59e0b;">
+            <div class="stat-icon orange">💳</div>
+            <div class="stat-info">
+              <span class="stat-label">Fleet Expenses Logged</span>
+              <span class="stat-value" id="statExpenses">₹ 0</span>
+            </div>
+          </div>
+          <div class="stat-card" style="border-left: 4px solid #8b5cf6;">
+            <div class="stat-icon purple">🔧</div>
+            <div class="stat-info">
+              <span class="stat-label">Verified Garages</span>
+              <span class="stat-value" id="statMechanics">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-4 stats-grid mb-4">
+          <div class="stat-card">
+            <div class="stat-icon blue">🛠️</div>
+            <div class="stat-info">
+              <span class="stat-label">Service Records</span>
+              <span class="stat-value" id="statServices">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">💰</div>
+            <div class="stat-info">
+              <span class="stat-label">Loan Inquiries</span>
+              <span class="stat-value" id="statLoans">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange">📋</div>
+            <div class="stat-info">
+              <span class="stat-label">Citizen Grievances</span>
+              <span class="stat-value" id="statComplaints">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple">🛡️</div>
+            <div class="stat-info">
+              <span class="stat-label">Insurance Policies</span>
+              <span class="stat-value" id="statInsurance">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2 Chart / Aggregation Breakdown Cards -->
+        <div class="grid-2 mb-4">
+          <!-- Card 1: Vehicle Types Breakdown -->
+          <div class="card">
+            <h3 style="font-size:16px; font-weight:700; color:var(--text-dark); margin-bottom:14px;">
+              📊 Fleet Distribution by Vehicle Class
+            </h3>
+            <div id="vehicleTypesBars">
+              <p class="text-muted" style="font-size:13px;">Loading fleet breakdown...</p>
+            </div>
+          </div>
+
+          <!-- Card 2: Fuel Types Distribution -->
+          <div class="card">
+            <h3 style="font-size:16px; font-weight:700; color:var(--text-dark); margin-bottom:14px;">
+              ⛽ Fuel Category Distribution
+            </h3>
+            <div id="fuelTypesBars">
+              <p class="text-muted" style="font-size:13px;">Loading fuel statistics...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Registrations & Quick Admin Tables -->
+        <div class="grid-2 mb-4">
+          <!-- Recent Registered Users -->
+          <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+              <h3 style="font-size:16px; font-weight:700; color:var(--text-dark); margin:0;">
+                👥 Recent Citizen Users
+              </h3>
+              <a href="/admin/users" class="btn btn-outline btn-sm" style="font-size:12px; padding:4px 8px;">View All</a>
+            </div>
+            <div class="table-responsive">
+              <table class="table" style="font-size:13px;">
+                <thead>
+                  <tr>
+                    <th>Citizen Name</th>
+                    <th>Email</th>
+                    <th>Account</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="recentUsersTable">
+                  <tr><td colspan="4" class="text-center text-muted">Loading user accounts...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Recent Vehicles -->
+          <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+              <h3 style="font-size:16px; font-weight:700; color:var(--text-dark); margin:0;">
+                🚗 Recent Fleet Additions
+              </h3>
+              <a href="/admin/vehicles" class="btn btn-outline btn-sm" style="font-size:12px; padding:4px 8px;">View All</a>
+            </div>
+            <div class="table-responsive">
+              <table class="table" style="font-size:13px;">
+                <thead>
+                  <tr>
+                    <th>Registration No</th>
+                    <th>Make & Model</th>
+                    <th>Owner</th>
+                    <th>Fuel</th>
+                  </tr>
+                </thead>
+                <tbody id="recentVehiclesTable">
+                  <tr><td colspan="4" class="text-center text-muted">Loading registered fleet...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Admin Action Strip -->
+        <div class="card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; background:linear-gradient(135deg, #0d2238 0%, #1e293b 100%); color:#fff; border:none; padding:18px 24px;">
+          <div>
+            <h4 style="font-size:16px; font-weight:700; margin:0 0 4px; color:#fff;">Administrative Shortkeys & Operations</h4>
+            <p style="font-size:13px; color:#94a3b8; margin:0;">Directly review pending citizen loan applications, moderate grievances, or download official project report.</p>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <a href="/admin/loans" class="btn btn-primary btn-sm">💰 Review Loans</a>
+            <a href="/admin/complaints" class="btn btn-secondary btn-sm">📋 Citizen Grievances</a>
+            <a href="/admin/reports" class="btn btn-outline btn-sm" style="color:#fff; border-color:#fff;">📈 Generate Report</a>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/admin-navbar.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      requireAdminAuth();
+      loadDashboard();
+    });
+
+    async function loadDashboard() {
+      try {
+        const data = await apiGet('/admin/dashboard');
+        const stats = data.stats || {};
+        const charts = data.charts || {};
+        const recentUsers = data.recentUsers || [];
+        const recentVehicles = data.recentVehicles || [];
+
+        // Counters
+        document.getElementById('statUsers').textContent = stats.totalUsers || 0;
+        document.getElementById('statVehicles').textContent = stats.totalVehicles || 0;
+        document.getElementById('statExpenses').textContent = '₹ ' + (stats.totalExpenses || 0).toLocaleString('en-IN');
+        document.getElementById('statMechanics').textContent = stats.totalMechanics || 0;
+        document.getElementById('statServices').textContent = stats.totalServices || 0;
+        document.getElementById('statLoans').textContent = stats.totalLoans || 0;
+        document.getElementById('statComplaints').textContent = stats.totalComplaints || 0;
+        document.getElementById('statInsurance').textContent = stats.totalInsurance || 0;
+
+        // Vehicle types bar chart
+        renderBars('vehicleTypesBars', charts.vehicleTypes || [], stats.totalVehicles || 1, '#1e62ff');
+
+        // Fuel types bar chart
+        renderBars('fuelTypesBars', charts.fuelTypes || [], stats.totalVehicles || 1, '#10b981');
+
+        // Recent Users Table
+        const usersTable = document.getElementById('recentUsersTable');
+        if (recentUsers.length === 0) {
+          usersTable.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No users found.</td></tr>';
+        } else {
+          usersTable.innerHTML = recentUsers.map(u => `
+            <tr>
+              <td><strong>${u.fullName || 'User'}</strong></td>
+              <td style="color:#64748b;">${u.email}</td>
+              <td><span class="badge ${u.accountType === 'Business' ? 'badge-primary' : 'badge-secondary'}">${u.accountType || 'Individual'}</span></td>
+              <td><span class="badge ${u.status === 'Active' ? 'badge-success' : 'badge-danger'}">${u.status || 'Active'}</span></td>
+            </tr>
+          `).join('');
+        }
+
+        // Recent Vehicles Table
+        const vehiclesTable = document.getElementById('recentVehiclesTable');
+        if (recentVehicles.length === 0) {
+          vehiclesTable.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No vehicles registered yet.</td></tr>';
+        } else {
+          vehiclesTable.innerHTML = recentVehicles.map(v => `
+            <tr>
+              <td><span class="badge badge-outline" style="font-family:monospace; font-weight:700;">${v.vehicleNumber}</span></td>
+              <td><strong>${v.brand || ''} ${v.model || ''}</strong></td>
+              <td style="color:#64748b;">${v.ownerName || (v.userId ? v.userId.fullName : 'Citizen')}</td>
+              <td><span class="badge badge-primary">${v.fuelType || 'Petrol'}</span></td>
+            </tr>
+          `).join('');
+        }
+
+      } catch (err) {
+        showAlert('alertBox', 'danger', 'Failed to load administrator dashboard: ' + err.message);
+      }
+    }
+
+    function renderBars(containerId, dataItems, total, color) {
+      const container = document.getElementById(containerId);
+      if (!dataItems || dataItems.length === 0) {
+        container.innerHTML = '<p class="text-muted" style="font-size:13px;">No breakdown data recorded.</p>';
+        return;
+      }
+
+      const totalCount = dataItems.reduce((sum, item) => sum + (item.count || 0), 0) || 1;
+
+      container.innerHTML = dataItems.map(item => {
+        const label = item._id || 'Standard';
+        const count = item.count || 0;
+        const percentage = Math.round((count / totalCount) * 100);
+
+        return `
+          <div class="admin-bar-wrap">
+            <span class="admin-bar-label">${label}</span>
+            <div class="admin-bar-outer">
+              <div class="admin-bar-inner" style="width: ${percentage}%; background-color: ${color};"></div>
+            </div>
+            <span class="admin-bar-count">${count} (${percentage}%)</span>
+          </div>
+        `;
+      }).join('');
+    }
+  </script>
+</body>
+</html>

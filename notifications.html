@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Reminders & Notifications – SafarSaathi</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    .notif-card {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 18px 20px;
+      border-radius: var(--radius-md);
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      margin-bottom: 12px;
+      transition: all 0.2s ease;
+    }
+    .notif-card.unread {
+      background: #f8faff;
+      border-left: 4px solid var(--primary-blue);
+      box-shadow: var(--shadow-sm);
+    }
+    .notif-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .notif-body {
+      flex: 1;
+    }
+    .notif-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .notif-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin: 0;
+    }
+    .notif-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="layout-container">
+    <div id="sidebar-container"></div>
+
+    <div class="main-wrapper">
+      <div id="topbar-container"></div>
+
+      <main class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Smart Vehicle Reminders & Alerts</h1>
+            <p class="page-subtitle">Automated expiry alerts for PUC certificates, motor insurance renewals, RC fitness deadlines, and scheduled maintenance.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-outline" onclick="markAllRead()">
+              <span>✓ Mark All as Read</span>
+            </button>
+            <button class="btn btn-primary" onclick="loadNotifications()">
+              <span>🔄 Refresh</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="alertBox"></div>
+
+        <!-- 4 Metric Stat Cards -->
+        <div class="grid-4 stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon blue">🔔</div>
+            <div class="stat-info">
+              <span class="stat-label">Total Reminders</span>
+              <span class="stat-value" id="statTotalNotifs">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange">⚡</div>
+            <div class="stat-info">
+              <span class="stat-label">Unread Alerts</span>
+              <span class="stat-value" id="statUnreadNotifs">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple">🛡️</div>
+            <div class="stat-info">
+              <span class="stat-label">Insurance Alerts</span>
+              <span class="stat-value" id="statInsuranceNotifs">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">🔧</div>
+            <div class="stat-info">
+              <span class="stat-label">Service Schedules</span>
+              <span class="stat-value" id="statServiceNotifs">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="card mb-4">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-primary btn-sm notif-filter-btn" data-type="All" onclick="filterType('All')">All Alerts</button>
+              <button class="btn btn-secondary btn-sm notif-filter-btn" data-type="Unread" onclick="filterType('Unread')">Unread Only</button>
+              <button class="btn btn-secondary btn-sm notif-filter-btn" data-type="Insurance" onclick="filterType('Insurance')">Insurance</button>
+              <button class="btn btn-secondary btn-sm notif-filter-btn" data-type="PUC" onclick="filterType('PUC')">PUC Certificate</button>
+              <button class="btn btn-secondary btn-sm notif-filter-btn" data-type="Service" onclick="filterType('Service')">Maintenance</button>
+            </div>
+            <div>
+              <span id="unreadCountBadge" class="badge badge-warning" style="display:none;">0 Unread</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="notifsLoading" class="text-center py-5">
+          <div class="spinner"></div>
+          <p class="text-muted mt-2">Checking your active vehicle reminders...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div id="notifsEmpty" class="card empty-state text-center py-5" style="display:none;">
+          <div style="font-size:48px; margin-bottom:12px;">🎉</div>
+          <h3 style="font-size:18px; font-weight:700; color:var(--text-dark);">All Caught Up!</h3>
+          <p class="text-muted" style="font-size:13px; max-width:450px; margin:8px auto 0;">
+            No pending or overdue reminders. SafarSaathi will automatically notify you before your vehicle documents or scheduled maintenance expire.
+          </p>
+        </div>
+
+        <!-- Notifications List -->
+        <div id="notifsList" style="display:none;"></div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/navbar.js"></script>
+  <script>
+    let allNotifications = [];
+    let currentFilter = 'All';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      renderNavbar();
+      loadNotifications();
+    });
+
+    async function loadNotifications() {
+      const loading = document.getElementById('notifsLoading');
+      const list = document.getElementById('notifsList');
+      const empty = document.getElementById('notifsEmpty');
+
+      loading.style.display = 'block';
+      list.style.display = 'none';
+      empty.style.display = 'none';
+
+      try {
+        const response = await apiGet('/notifications');
+        allNotifications = response.notifications || response.data || [];
+        updateStats(allNotifications);
+        renderNotifications(allNotifications);
+      } catch (err) {
+        showAlert('alertBox', 'danger', 'Failed to load notifications: ' + err.message);
+      } finally {
+        loading.style.display = 'none';
+      }
+    }
+
+    function updateStats(items) {
+      const total = items.length;
+      const unread = items.filter(n => !n.isRead).length;
+      const insurance = items.filter(n => (n.type || '').includes('Insurance') || (n.title || '').includes('Insurance')).length;
+      const service = items.filter(n => (n.type || '').includes('Service') || (n.type || '').includes('Maintenance') || (n.title || '').includes('Service')).length;
+
+      document.getElementById('statTotalNotifs').textContent = total;
+      document.getElementById('statUnreadNotifs').textContent = unread;
+      document.getElementById('statInsuranceNotifs').textContent = insurance;
+      document.getElementById('statServiceNotifs').textContent = service;
+
+      const unreadBadge = document.getElementById('unreadCountBadge');
+      if (unread > 0) {
+        unreadBadge.textContent = `${unread} Actionable Reminders`;
+        unreadBadge.style.display = 'inline-block';
+      } else {
+        unreadBadge.style.display = 'none';
+      }
+    }
+
+    function filterType(type) {
+      currentFilter = type;
+      
+      document.querySelectorAll('.notif-filter-btn').forEach(btn => {
+        if (btn.getAttribute('data-type') === type) {
+          btn.className = 'btn btn-primary btn-sm notif-filter-btn';
+        } else {
+          btn.className = 'btn btn-secondary btn-sm notif-filter-btn';
+        }
+      });
+
+      let filtered = allNotifications;
+      if (type === 'Unread') {
+        filtered = allNotifications.filter(n => !n.isRead);
+      } else if (type === 'Insurance') {
+        filtered = allNotifications.filter(n => (n.type || '').includes('Insurance') || (n.title || '').includes('Insurance'));
+      } else if (type === 'PUC') {
+        filtered = allNotifications.filter(n => (n.type || '').includes('PUC') || (n.title || '').includes('PUC'));
+      } else if (type === 'Service') {
+        filtered = allNotifications.filter(n => (n.type || '').includes('Service') || (n.type || '').includes('Maintenance') || (n.title || '').includes('Service'));
+      }
+
+      renderNotifications(filtered);
+    }
+
+    function renderNotifications(items) {
+      const list = document.getElementById('notifsList');
+      const empty = document.getElementById('notifsEmpty');
+
+      if (!items || items.length === 0) {
+        list.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+      }
+
+      empty.style.display = 'none';
+      list.style.display = 'block';
+
+      list.innerHTML = items.map(n => {
+        const isUnread = !n.isRead;
+        const type = (n.type || '').toLowerCase();
+        let iconBg = '#dbeafe';
+        let iconColor = '#1e40af';
+        let icon = '🔔';
+        let actionLink = '/dashboard';
+        let actionLabel = 'View Details';
+
+        if (type.includes('insurance')) {
+          icon = '🛡️';
+          iconBg = '#fee2e2';
+          iconColor = '#991b1b';
+          actionLink = '/insurance';
+          actionLabel = 'Renew Insurance';
+        } else if (type.includes('puc')) {
+          icon = '📋';
+          iconBg = '#fef3c7';
+          iconColor = '#92400e';
+          actionLink = '/documents';
+          actionLabel = 'Update PUC Certificate';
+        } else if (type.includes('service') || type.includes('maintenance')) {
+          icon = '🔧';
+          iconBg = '#e0e7ff';
+          iconColor = '#3730a3';
+          actionLink = '/services';
+          actionLabel = 'Book / Log Service';
+        }
+
+        const dateStr = n.createdAt ? new Date(n.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Today';
+        const vehicleBadge = n.vehicleId
+          ? `<span class="badge badge-primary" style="font-size:11px;">🚗 ${n.vehicleId.brand || ''} ${n.vehicleId.model || ''} (${n.vehicleId.vehicleNumber || ''})</span>`
+          : '';
+
+        return `
+          <div class="notif-card ${isUnread ? 'unread' : ''}" id="notif-${n._id}">
+            <div class="notif-icon-box" style="background:${iconBg}; color:${iconColor};">
+              ${icon}
+            </div>
+
+            <div class="notif-body">
+              <div class="notif-header">
+                <div>
+                  <h3 class="notif-title">${n.title}</h3>
+                  <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
+                    ${vehicleBadge}
+                    <span class="notif-meta">📅 ${dateStr}</span>
+                  </div>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:8px;">
+                  ${isUnread ? `<button class="btn btn-secondary btn-sm" onclick="markSingleRead('${n._id}')" style="font-size:12px; padding:4px 8px;">Mark Read</button>` : '<span style="font-size:12px; color:#94a3b8;">✓ Read</span>'}
+                  <a href="${actionLink}" class="btn btn-outline btn-sm" style="font-size:12px; padding:4px 10px;">
+                    ${actionLabel} ➡️
+                  </a>
+                </div>
+              </div>
+
+              <p style="font-size:13px; color:#475569; margin:6px 0 0; line-height:1.4;">
+                ${n.message}
+              </p>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function markSingleRead(id) {
+      try {
+        await apiPut(`/notifications/${id}/read`, {});
+        const item = allNotifications.find(n => n._id === id);
+        if (item) item.isRead = true;
+        updateStats(allNotifications);
+        renderNotifications(allNotifications);
+        if (typeof loadNotificationCount === 'function') loadNotificationCount();
+      } catch (err) {
+        showAlert('alertBox', 'danger', 'Could not update notification: ' + err.message);
+      }
+    }
+
+    async function markAllRead() {
+      try {
+        await apiPut('/notifications/read-all', {});
+        allNotifications.forEach(n => n.isRead = true);
+        updateStats(allNotifications);
+        renderNotifications(allNotifications);
+        showAlert('alertBox', 'success', 'All reminders marked as read.');
+        if (typeof loadNotificationCount === 'function') loadNotificationCount();
+      } catch (err) {
+        showAlert('alertBox', 'danger', 'Could not mark notifications: ' + err.message);
+      }
+    }
+  </script>
+</body>
+</html>

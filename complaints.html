@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grievance & Feedback Redressal – SafarSaathi</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="layout-container">
+    <div id="sidebar-container"></div>
+
+    <div class="main-wrapper">
+      <div id="topbar-container"></div>
+
+      <main class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Citizen Grievance Redressal & Feedback</h1>
+            <p class="page-subtitle">Submit service inquiries, report RTO or garage issues, and track official administrator responses.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-outline" onclick="loadComplaints()">
+              <span>🔄 Refresh Status</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="alertBox"></div>
+
+        <!-- 3 Quick Stat Cards -->
+        <div class="grid-3 mb-4">
+          <div class="stat-card">
+            <div class="stat-icon blue">📋</div>
+            <div class="stat-info">
+              <span class="stat-label">Total Submissions</span>
+              <span class="stat-value" id="statTotalTickets">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange">⏳</div>
+            <div class="stat-info">
+              <span class="stat-label">Pending / In Review</span>
+              <span class="stat-value" id="statOpenTickets">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">✅</div>
+            <div class="stat-info">
+              <span class="stat-label">Resolved Tickets</span>
+              <span class="stat-value" id="statResolvedTickets">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2" style="align-items: flex-start;">
+          <!-- Left Column: Submit New Ticket Form -->
+          <div class="card">
+            <h3 style="font-size:18px; font-weight:700; color:var(--text-dark); margin-bottom:14px;">
+              ✍️ Submit New Grievance / Feedback
+            </h3>
+            <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
+              Our administrative desk reviews all citizen feedback and system grievances within 24 to 48 hours.
+            </p>
+
+            <form id="complaintForm" onsubmit="submitTicket(event)">
+              <div class="form-group mb-3">
+                <label class="form-label">Submission Category <span class="text-danger">*</span></label>
+                <select id="ticketType" class="form-control" required>
+                  <option value="Grievance">🚨 Service Grievance / Complaint</option>
+                  <option value="Feedback" selected>💬 System Feedback / Suggestion</option>
+                  <option value="Inquiry">❓ RTO / Document Inquiry</option>
+                  <option value="Feature Request">💡 Feature Request</option>
+                </select>
+              </div>
+
+              <div class="form-group mb-3">
+                <label class="form-label">Subject / Title <span class="text-danger">*</span></label>
+                <input type="text" id="ticketSubject" class="form-control" placeholder="e.g. Discrepancy in PUC validity date or mechanic listing issue" required>
+              </div>
+
+              <div class="form-group mb-3">
+                <label class="form-label">Detailed Description <span class="text-danger">*</span></label>
+                <textarea id="ticketMessage" class="form-control" rows="5" placeholder="Please elaborate your issue, vehicle registration number involved, or suggestions for the platform..." required></textarea>
+              </div>
+
+              <button type="submit" id="submitBtn" class="btn btn-primary" style="width:100%;">
+                <span>📨 Submit to Admin Desk</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- Right Column: Ticket History -->
+          <div>
+            <div class="card">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 style="font-size:18px; font-weight:700; color:var(--text-dark); margin:0;">
+                  📑 My Ticket History
+                </h3>
+                <span class="badge badge-primary" id="ticketBadge">0 Records</span>
+              </div>
+
+              <div id="ticketsLoading" class="text-center py-4">
+                <div class="spinner"></div>
+                <p class="text-muted mt-2">Loading your grievance history...</p>
+              </div>
+
+              <div id="ticketsEmpty" class="empty-state text-center py-4" style="display:none;">
+                <div style="font-size:36px; margin-bottom:8px;">📬</div>
+                <h4 style="font-size:15px; font-weight:700; color:var(--text-dark);">No Grievances Submitted</h4>
+                <p class="text-muted" style="font-size:12px;">You have not submitted any complaints or feedback yet. Use the form on the left to reach out.</p>
+              </div>
+
+              <div id="ticketsList" style="display:none; display:flex; flex-direction:column; gap:12px;"></div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/navbar.js"></script>
+  <script>
+    let myTickets = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      renderNavbar();
+      loadComplaints();
+    });
+
+    async function loadComplaints() {
+      const loading = document.getElementById('ticketsLoading');
+      const list = document.getElementById('ticketsList');
+      const empty = document.getElementById('ticketsEmpty');
+
+      loading.style.display = 'block';
+      list.style.display = 'none';
+      empty.style.display = 'none';
+
+      try {
+        const response = await apiGet('/complaints/my');
+        myTickets = response.complaints || response.data || [];
+        updateStats(myTickets);
+        renderTickets(myTickets);
+      } catch (err) {
+        showAlert('alertBox', 'danger', 'Failed to load tickets: ' + err.message);
+      } finally {
+        loading.style.display = 'none';
+      }
+    }
+
+    function updateStats(items) {
+      document.getElementById('statTotalTickets').textContent = items.length;
+      document.getElementById('statOpenTickets').textContent = items.filter(t => t.status === 'Open' || t.status === 'In Progress').length;
+      document.getElementById('statResolvedTickets').textContent = items.filter(t => t.status === 'Resolved' || t.status === 'Closed').length;
+      document.getElementById('ticketBadge').textContent = `${items.length} Submissions`;
+    }
+
+    function renderTickets(items) {
+      const list = document.getElementById('ticketsList');
+      const empty = document.getElementById('ticketsEmpty');
+
+      if (!items || items.length === 0) {
+        list.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+      }
+
+      empty.style.display = 'none';
+      list.style.display = 'flex';
+
+      list.innerHTML = items.map(t => {
+        let statusBadge = 'badge-warning';
+        if (t.status === 'Resolved') statusBadge = 'badge-success';
+        if (t.status === 'In Progress') statusBadge = 'badge-primary';
+        if (t.status === 'Closed') statusBadge = 'badge-secondary';
+
+        const dateStr = t.createdAt ? new Date(t.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Recently';
+
+        const adminReplyHtml = t.adminResponse ? `
+          <div style="background:#f1f5f9; border-left:3px solid #10b981; border-radius:4px; padding:10px 12px; margin-top:10px; font-size:12px;">
+            <div style="font-weight:700; color:#0f2942; margin-bottom:2px;">🛡️ Official Admin Response:</div>
+            <p style="color:#334155; margin:0; line-height:1.4;">${t.adminResponse}</p>
+          </div>
+        ` : '';
+
+        return `
+          <div style="border:1px solid #e2e8f0; border-radius:8px; padding:14px; background:#ffffff;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px; flex-wrap:wrap; gap:6px;">
+              <span class="badge badge-outline" style="font-size:11px;">${t.type || 'Grievance'}</span>
+              <span class="badge ${statusBadge}">${t.status || 'Open'}</span>
+            </div>
+
+            <h4 style="font-size:14px; font-weight:700; color:var(--text-dark); margin:4px 0 6px;">${t.subject}</h4>
+            <p style="font-size:13px; color:#475569; line-height:1.4; margin:0;">${t.message}</p>
+
+            ${adminReplyHtml}
+
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:#94a3b8; margin-top:8px; border-top:1px dashed #f1f5f9; padding-top:6px;">
+              <span>Ticket ID: #${t._id.slice(-6).toUpperCase()}</span>
+              <span>📅 ${dateStr}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function submitTicket(e) {
+      e.preventDefault();
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span>Submitting...</span>';
+
+      const type = document.getElementById('ticketType').value;
+      const subject = document.getElementById('ticketSubject').value.trim();
+      const message = document.getElementById('ticketMessage').value.trim();
+
+      try {
+        await apiPost('/complaints', { type, subject, message });
+        showAlert('alertBox', 'success', '🎉 Your ticket has been logged successfully! The administrative desk has received your submission.');
+        document.getElementById('complaintForm').reset();
+        await loadComplaints();
+      } catch (err) {
+        showAlert('alertBox', 'danger', 'Submission failed: ' + err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>📨 Submit to Admin Desk</span>';
+      }
+    }
+  </script>
+</body>
+</html>

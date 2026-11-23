@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fleet Registry & All Vehicles – SafarSaathi Admin</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="layout-container">
+    <div id="admin-sidebar-container"></div>
+
+    <div class="main-wrapper">
+      <div id="admin-topbar-container"></div>
+
+      <main class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Master Fleet Registry</h1>
+            <p class="page-subtitle">Inspect all registered four-wheelers, two-wheelers, and commercial vehicles across the SafarSaathi database.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-outline" onclick="loadVehicles()">
+              <span>🔄 Refresh Fleet</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="alertBox"></div>
+
+        <!-- 4 Fleet Metric Cards -->
+        <div class="grid-4 stats-grid mb-4">
+          <div class="stat-card">
+            <div class="stat-icon blue">🚗</div>
+            <div class="stat-info">
+              <span class="stat-label">Total Fleet Size</span>
+              <span class="stat-value" id="statTotalVehicles">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">🚘</div>
+            <div class="stat-info">
+              <span class="stat-label">Four Wheelers</span>
+              <span class="stat-value" id="statFourWheelers">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange">🛵</div>
+            <div class="stat-info">
+              <span class="stat-label">Two Wheelers</span>
+              <span class="stat-value" id="statTwoWheelers">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple">⚡</div>
+            <div class="stat-info">
+              <span class="stat-label">Clean Fuel (EV/CNG)</span>
+              <span class="stat-value" id="statCleanVehicles">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search & Filter Bar -->
+        <div class="card mb-4">
+          <div class="filter-bar" style="display:flex; flex-wrap:wrap; gap:12px; align-items:center;">
+            <div style="flex:2; min-width:240px;">
+              <input type="text" id="searchInput" class="form-control" placeholder="🔍 Search by registration number, brand, model, owner, or city..." oninput="filterVehicles()">
+            </div>
+            <div style="flex:1; min-width:160px;">
+              <select id="typeFilter" class="form-control" onchange="filterVehicles()">
+                <option value="All">All Vehicle Classes</option>
+                <option value="Four Wheeler">Four Wheeler</option>
+                <option value="Two Wheeler">Two Wheeler</option>
+                <option value="Commercial Vehicle">Commercial Vehicle</option>
+              </select>
+            </div>
+            <div style="flex:1; min-width:160px;">
+              <select id="fuelFilter" class="form-control" onchange="filterVehicles()">
+                <option value="All">All Fuel Types</option>
+                <option value="Petrol">Petrol</option>
+                <option value="Diesel">Diesel</option>
+                <option value="CNG">CNG</option>
+                <option value="Electric">Electric</option>
+              </select>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="resetFilters()">Reset</button>
+          </div>
+        </div>
+
+        <!-- Fleet Table Card -->
+        <div class="card">
+          <div id="fleetLoading" class="text-center py-5">
+            <div class="spinner"></div>
+            <p class="text-muted mt-2">Loading registered vehicle database...</p>
+          </div>
+
+          <div id="fleetEmpty" class="empty-state text-center py-5" style="display:none;">
+            <div style="font-size:42px; margin-bottom:8px;">🚗</div>
+            <h4>No Vehicles Found</h4>
+            <p class="text-muted">No vehicle records match your selected filters.</p>
+          </div>
+
+          <div class="table-responsive" id="fleetTableContainer" style="display:none;">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Plate & Registration</th>
+                  <th>Vehicle Details</th>
+                  <th>Registered Owner</th>
+                  <th>Class & Fuel</th>
+                  <th>RTO Jurisdiction</th>
+                  <th>Status</th>
+                  <th>Admin Action</th>
+                </tr>
+              </thead>
+              <tbody id="fleetTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Vehicle Details Modal -->
+  <div class="modal-backdrop" id="viewModal" style="display:none;">
+    <div class="modal" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 class="modal-title">RTO Vehicle Specifications</h3>
+        <button class="modal-close" onclick="closeViewModal()">✕</button>
+      </div>
+      <div class="modal-body" id="viewModalBody">
+        <!-- Rendered dynamically -->
+      </div>
+      <div class="modal-footer" style="display:flex; justify-content:flex-end;">
+        <button class="btn btn-secondary" onclick="closeViewModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/admin-navbar.js"></script>
+  <script>
+    let allVehicles = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      requireAdminAuth();
+      loadVehicles();
+    });
+
+    async function loadVehicles() {
+      const loading = document.getElementById('fleetLoading');
+      const container = document.getElementById('fleetTableContainer');
+      const empty = document.getElementById('fleetEmpty');
+
+      loading.style.display = 'block';
+      container.style.display = 'none';
+      empty.style.display = 'none';
+
+      try {
+        const response = await apiGet('/admin/vehicles');
+        allVehicles = response.vehicles || [];
+        updateStats(allVehicles);
+        renderVehicles(allVehicles);
+      } catch (err) {
+        showAlert('alertBox', 'danger', 'Failed to load fleet registry: ' + err.message);
+      } finally {
+        loading.style.display = 'none';
+      }
+    }
+
+    function updateStats(items) {
+      document.getElementById('statTotalVehicles').textContent = items.length;
+      document.getElementById('statFourWheelers').textContent = items.filter(v => v.vehicleType === 'Four Wheeler').length;
+      document.getElementById('statTwoWheelers').textContent = items.filter(v => v.vehicleType === 'Two Wheeler').length;
+      document.getElementById('statCleanVehicles').textContent = items.filter(v => v.fuelType === 'Electric' || v.fuelType === 'CNG' || v.fuelType === 'Hybrid').length;
+    }
+
+    function filterVehicles() {
+      const search = document.getElementById('searchInput').value.trim().toLowerCase();
+      const type = document.getElementById('typeFilter').value;
+      const fuel = document.getElementById('fuelFilter').value;
+
+      const filtered = allVehicles.filter(v => {
+        const matchesType = (type === 'All') || (v.vehicleType === type);
+        const matchesFuel = (fuel === 'All') || (v.fuelType === fuel);
+        const matchesSearch = !search ||
+          (v.vehicleNumber && v.vehicleNumber.toLowerCase().includes(search)) ||
+          (v.brand && v.brand.toLowerCase().includes(search)) ||
+          (v.model && v.model.toLowerCase().includes(search)) ||
+          (v.ownerName && v.ownerName.toLowerCase().includes(search)) ||
+          (v.userId && v.userId.fullName && v.userId.fullName.toLowerCase().includes(search)) ||
+          (v.city && v.city.toLowerCase().includes(search));
+
+        return matchesType && matchesFuel && matchesSearch;
+      });
+
+      renderVehicles(filtered);
+    }
+
+    function resetFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('typeFilter').value = 'All';
+      document.getElementById('fuelFilter').value = 'All';
+      renderVehicles(allVehicles);
+    }
+
+    function renderVehicles(items) {
+      const tbody = document.getElementById('fleetTableBody');
+      const container = document.getElementById('fleetTableContainer');
+      const empty = document.getElementById('fleetEmpty');
+
+      if (!items || items.length === 0) {
+        container.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+      }
+
+      empty.style.display = 'none';
+      container.style.display = 'block';
+
+      tbody.innerHTML = items.map(v => {
+        const ownerName = v.ownerName || (v.userId ? v.userId.fullName : 'Citizen');
+        const ownerEmail = v.userId ? v.userId.email : '';
+        const fuelBadge = v.fuelType === 'Electric' ? 'badge-success' : (v.fuelType === 'CNG' ? 'badge-info' : 'badge-primary');
+
+        return `
+          <tr>
+            <td>
+              <div style="font-family:monospace; font-weight:800; font-size:14px; background:#f1f5f9; padding:4px 8px; border-radius:4px; display:inline-block; border:1px solid #cbd5e1; color:#0f2942;">
+                ${v.vehicleNumber}
+              </div>
+            </td>
+            <td>
+              <strong style="color:var(--text-dark);">${v.brand} ${v.model}</strong>
+              <div style="font-size:11px; color:#64748b;">Year: ${v.year || (v.registrationDate ? new Date(v.registrationDate).getFullYear() : '2021')}</div>
+            </td>
+            <td>
+              <div style="font-size:13px; font-weight:600;">${ownerName}</div>
+              <div style="font-size:11px; color:#94a3b8;">${ownerEmail}</div>
+            </td>
+            <td>
+              <div style="display:flex; flex-direction:column; gap:2px;">
+                <span style="font-size:12px; font-weight:600; color:#334155;">${v.vehicleType}</span>
+                <span class="badge ${fuelBadge}" style="width:fit-content; font-size:10px;">${v.fuelType}</span>
+              </div>
+            </td>
+            <td>
+              <div style="font-size:13px;">${v.city || 'Pune'}, ${v.state || 'MH'}</div>
+            </td>
+            <td>
+              <span class="badge ${v.status === 'Active' ? 'badge-success' : 'badge-secondary'}">
+                ${v.status || 'Active'}
+              </span>
+            </td>
+            <td>
+              <div style="display:flex; gap:6px;">
+                <button class="btn btn-outline btn-sm" onclick="showVehicleSpecs('${v._id}')" style="font-size:11px; padding:4px 8px;">
+                  Specs
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="deleteVehicle('${v._id}', '${v.vehicleNumber}')" style="font-size:11px; padding:4px 8px;">
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function showVehicleSpecs(id) {
+      const v = allVehicles.find(item => item._id === id);
+      if (!v) return;
+
+      const body = document.getElementById('viewModalBody');
+      const regDate = v.registrationDate ? new Date(v.registrationDate).toLocaleDateString('en-IN') : 'N/A';
+      const insExpiry = v.insuranceExpiryDate ? new Date(v.insuranceExpiryDate).toLocaleDateString('en-IN') : 'N/A';
+      const pucExpiry = v.pucExpiryDate ? new Date(v.pucExpiryDate).toLocaleDateString('en-IN') : 'N/A';
+
+      body.innerHTML = `
+        <div style="text-align:center; margin-bottom:16px;">
+          <div style="font-family:monospace; font-size:20px; font-weight:900; background:#0f2942; color:#fff; padding:6px 16px; border-radius:6px; display:inline-block; letter-spacing:2px;">
+            ${v.vehicleNumber}
+          </div>
+          <h3 style="font-size:18px; font-weight:700; margin:8px 0 2px;">${v.brand} ${v.model}</h3>
+          <p style="font-size:13px; color:#64748b; margin:0;">Owner: ${v.ownerName || (v.userId ? v.userId.fullName : 'Citizen')}</p>
+        </div>
+
+        <table style="width:100%; font-size:13px; line-height:2.2;">
+          <tr style="border-bottom:1px solid #f1f5f9;"><td style="color:#64748b;">Chassis Number:</td><td style="font-weight:600; font-family:monospace; text-align:right;">${v.chassisNumber || 'N/A'}</td></tr>
+          <tr style="border-bottom:1px solid #f1f5f9;"><td style="color:#64748b;">Engine Number:</td><td style="font-weight:600; font-family:monospace; text-align:right;">${v.engineNumber || 'N/A'}</td></tr>
+          <tr style="border-bottom:1px solid #f1f5f9;"><td style="color:#64748b;">Vehicle Class:</td><td style="text-align:right;">${v.vehicleType}</td></tr>
+          <tr style="border-bottom:1px solid #f1f5f9;"><td style="color:#64748b;">Fuel Type:</td><td style="text-align:right; font-weight:700; color:#1e62ff;">${v.fuelType}</td></tr>
+          <tr style="border-bottom:1px solid #f1f5f9;"><td style="color:#64748b;">Registration Date:</td><td style="text-align:right;">${regDate}</td></tr>
+          <tr style="border-bottom:1px solid #f1f5f9;"><td style="color:#64748b;">Insurance Expiry:</td><td style="text-align:right; font-weight:600;">${insExpiry}</td></tr>
+          <tr style="border-bottom:1px solid #f1f5f9;"><td style="color:#64748b;">PUC Validity:</td><td style="text-align:right; font-weight:600;">${pucExpiry}</td></tr>
+          <tr><td style="color:#64748b;">City & RTO:</td><td style="text-align:right;">${v.city || 'Pune'}, ${v.state || 'Maharashtra'}</td></tr>
+        </table>
+      `;
+
+      document.getElementById('viewModal').style.display = 'flex';
+    }
+
+    function closeViewModal() {
+      document.getElementById('viewModal').style.display = 'none';
+    }
+
+    async function deleteVehicle(id, regNo) {
+      if (!confirm(`Are you sure you want to delete vehicle "${regNo}"? This will also remove all associated logs.`)) {
+        return;
+      }
+
+      try {
+        await apiDelete(`/admin/vehicles/${id}`);
+        showAlert('alertBox', 'success', `Vehicle ${regNo} has been removed from database.`);
+        await loadVehicles();
+      } catch (err) {
+        showAlert('alertBox', 'danger', 'Failed to delete vehicle: ' + err.message);
+      }
+    }
+  </script>
+</body>
+</html>

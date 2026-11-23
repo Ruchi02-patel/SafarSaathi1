@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vehicle Age & Statutory Fitness Calculator – SafarSaathi</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="layout-container">
+    <div id="sidebar-container"></div>
+
+    <div class="main-wrapper">
+      <div id="topbar-container"></div>
+
+      <main class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Vehicle Age, Fitness & Green Tax Calculator</h1>
+            <p class="page-subtitle">Evaluate vehicle statutory age, 15-year RTO fitness renewal status, Green Tax applicability, and Scrappage Policy eligibility under Motor Vehicle Rules.</p>
+          </div>
+        </div>
+
+        <div id="alertBox"></div>
+
+        <div class="grid-2 mb-4" style="align-items: flex-start;">
+          <!-- Left Column: Input Form -->
+          <div class="card">
+            <h3 style="font-size:18px; font-weight:700; color:var(--text-dark); margin-bottom:16px;">
+              ⚙️ Enter Vehicle Parameters
+            </h3>
+
+            <form id="calcForm" onsubmit="calculateVehicleMetrics(event)">
+              <div class="form-group mb-3">
+                <label class="form-label">Auto-Fill from My Vehicles (Optional)</label>
+                <select id="userVehicleSelect" class="form-control" onchange="autoFillVehicle()">
+                  <option value="">-- Or choose manual entry below --</option>
+                </select>
+              </div>
+
+              <div class="form-group mb-3">
+                <label class="form-label">Vehicle Registration Date <span class="text-danger">*</span></label>
+                <input type="date" id="registrationDate" class="form-control" required onchange="calculateVehicleMetrics(event)">
+                <small class="text-muted" style="font-size:11px;">The official date of registration as printed on RC Book / Smart Card.</small>
+              </div>
+
+              <div class="grid-2">
+                <div class="form-group mb-3">
+                  <label class="form-label">Vehicle Class <span class="text-danger">*</span></label>
+                  <select id="vehicleType" class="form-control" required onchange="calculateVehicleMetrics(event)">
+                    <option value="Four Wheeler">Four Wheeler (Car / SUV)</option>
+                    <option value="Two Wheeler">Two Wheeler (Motorcycle / Scooter)</option>
+                    <option value="Commercial Vehicle">Commercial Vehicle (Taxi / Bus / Truck)</option>
+                  </select>
+                </div>
+                <div class="form-group mb-3">
+                  <label class="form-label">Fuel Type <span class="text-danger">*</span></label>
+                  <select id="fuelType" class="form-control" required onchange="calculateVehicleMetrics(event)">
+                    <option value="Petrol">Petrol</option>
+                    <option value="Diesel">Diesel</option>
+                    <option value="CNG">CNG / Bio-CNG</option>
+                    <option value="Electric">Electric (EV)</option>
+                    <option value="Hybrid">Hybrid</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group mb-3">
+                <label class="form-label">Registered State / RTO Jurisdiction</label>
+                <select id="calcState" class="form-control" onchange="calculateVehicleMetrics(event)">
+                  <option value="Gujarat" selected>Gujarat (GJ)</option>
+                  <option value="Maharashtra">Maharashtra (MH)</option>
+                  <option value="Delhi">Delhi / NCR (DL)</option>
+                  <option value="Karnataka">Karnataka (KA)</option>
+                  <option value="Other">Other Indian States</option>
+                </select>
+              </div>
+
+              <div style="display:flex; gap:10px; margin-top:20px;">
+                <button type="submit" class="btn btn-primary" style="flex:1;">
+                  <span>🧮 Calculate Statutory Status</span>
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="resetCalculator()">
+                  <span>Reset</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Right Column: Results & Analysis -->
+          <div>
+            <!-- Age Banner Card -->
+            <div class="card mb-3" style="background: linear-gradient(135deg, #0d2238 0%, #1e3a5f 100%); color:#fff; border:none; padding:24px;">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <div>
+                  <span style="font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:#93c5fd;">Precise Vehicle Age</span>
+                  <h2 id="resultAgeText" style="font-size:26px; font-weight:800; color:#fff; margin:6px 0 2px;">-- Years, -- Months</h2>
+                  <p id="resultDaysText" style="font-size:13px; color:#cbd5e1; margin:0;">Enter registration date to see exact breakdown.</p>
+                </div>
+                <div style="font-size:40px;">⏱️</div>
+              </div>
+            </div>
+
+            <!-- Statutory Status Cards Grid -->
+            <div class="grid-2 mb-3">
+              <div class="card" style="padding:16px;">
+                <div style="font-size:12px; color:var(--text-muted); font-weight:600; margin-bottom:4px;">15-Year RTO Fitness Status</div>
+                <div id="fitnessBadge" class="badge badge-success" style="font-size:13px; padding:4px 10px; margin-bottom:6px;">
+                  Active & Valid
+                </div>
+                <p id="fitnessDesc" style="font-size:12px; color:var(--text-muted); margin:0;">
+                  Within mandatory 15-year personal vehicle registration cycle.
+                </p>
+              </div>
+
+              <div class="card" style="padding:16px;">
+                <div style="font-size:12px; color:var(--text-muted); font-weight:600; margin-bottom:4px;">Green Tax (Paryavaran Kar)</div>
+                <div id="greenTaxBadge" class="badge badge-primary" style="font-size:13px; padding:4px 10px; margin-bottom:6px;">
+                  Exempt / Not Due
+                </div>
+                <p id="greenTaxDesc" style="font-size:12px; color:var(--text-muted); margin:0;">
+                  Green Tax is only levied upon completing 15 years on non-EVs.
+                </p>
+              </div>
+            </div>
+
+            <!-- Scrappage Policy Card -->
+            <div class="card mb-3" style="padding:16px; border-left:4px solid #10b981;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <h4 style="font-size:14px; font-weight:700; color:var(--text-dark); margin:0;">
+                  ♻️ National Vehicle Scrappage Policy (VVMP)
+                </h4>
+                <span id="scrappageBadge" class="badge badge-success">Not Eligible for Scrapping</span>
+              </div>
+              <p id="scrappageDesc" style="font-size:12px; color:var(--text-muted); margin:0; line-height:1.4;">
+                Private vehicles become eligible for optional scrappage incentives (4-6% rebate on new vehicle ex-showroom cost) after reaching 20 years of operational life.
+              </p>
+            </div>
+
+            <!-- Estimated Renewal Fees Breakdown -->
+            <div class="card" style="padding:16px;">
+              <h4 style="font-size:14px; font-weight:700; color:var(--text-dark); margin-bottom:10px;">
+                💰 Estimated RTO 15-Year Fitness Renewal Fee (If Applicable)
+              </h4>
+              <table style="width:100%; font-size:12px; border-collapse:collapse;">
+                <tr style="border-bottom:1px solid #f1f5f9;">
+                  <td style="padding:6px 0; color:#64748b;">RTO Inspection & Automated Fitness Test:</td>
+                  <td id="feeTest" style="padding:6px 0; text-align:right; font-weight:600;">₹ 600</td>
+                </tr>
+                <tr style="border-bottom:1px solid #f1f5f9;">
+                  <td style="padding:6px 0; color:#64748b;">Renewal of Registration Certificate (Form 25):</td>
+                  <td id="feeRc" style="padding:6px 0; text-align:right; font-weight:600;">₹ 5,000</td>
+                </tr>
+                <tr style="border-bottom:1px solid #f1f5f9;">
+                  <td style="padding:6px 0; color:#64748b;">Estimated Green Tax (5 Years Renewal):</td>
+                  <td id="feeGreenTax" style="padding:6px 0; text-align:right; font-weight:600; color:#10b981;">₹ 0 (Not Due)</td>
+                </tr>
+                <tr style="font-weight:700; font-size:13px;">
+                  <td style="padding:8px 0; color:#1e293b;">Total Estimated Renewal Cost:</td>
+                  <td id="feeTotal" style="padding:8px 0; text-align:right; color:#1e62ff;">₹ 5,600</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Viva & College Explanation Accordion Reference -->
+        <div class="card">
+          <h3 style="font-size:16px; font-weight:700; color:var(--text-dark); margin-bottom:10px;">
+            📚 Viva Presentation Key Rules & Explanations (Motor Vehicles Act)
+          </h3>
+          <div class="grid-3" style="font-size:12px; color:var(--text-muted); line-height:1.5;">
+            <div>
+              <strong style="color:var(--text-dark); display:block; margin-bottom:4px;">1. Section 41 (7) MV Act</strong>
+              Registration of a private motor car is valid for an initial period of 15 years from the date of issuance and must be renewed every 5 years thereafter.
+            </div>
+            <div>
+              <strong style="color:var(--text-dark); display:block; margin-bottom:4px;">2. Green Tax Provisions</strong>
+              Central Motor Vehicles Rules mandate Green Tax on personal vehicles at 10-25% of road tax at 15-year renewal. Electric and CNG vehicles are strictly exempt.
+            </div>
+            <div>
+              <strong style="color:var(--text-dark); display:block; margin-bottom:4px;">3. Delhi NCR Special Rule</strong>
+              Under NGT and Supreme Court orders, diesel vehicles > 10 years and petrol vehicles > 15 years cannot ply on public roads in the National Capital Region.
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/navbar.js"></script>
+  <script>
+    let userVehicles = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      renderNavbar();
+      loadUserVehicles();
+
+      // Default sample date: 4 years ago
+      const defaultDate = new Date();
+      defaultDate.setFullYear(defaultDate.getFullYear() - 4);
+      document.getElementById('registrationDate').value = defaultDate.toISOString().split('T')[0];
+      calculateVehicleMetrics();
+    });
+
+    async function loadUserVehicles() {
+      try {
+        const response = await apiGet('/vehicles');
+        userVehicles = response.vehicles || response.data || [];
+        const select = document.getElementById('userVehicleSelect');
+        
+        userVehicles.forEach(v => {
+          const opt = document.createElement('option');
+          opt.value = v._id;
+          opt.textContent = `${v.vehicleNumber} – ${v.brand} ${v.model} (${v.fuelType})`;
+          select.appendChild(opt);
+        });
+      } catch (e) {
+        console.error('Failed to load user vehicles for calculator:', e);
+      }
+    }
+
+    function autoFillVehicle() {
+      const selectedId = document.getElementById('userVehicleSelect').value;
+      if (!selectedId) return;
+
+      const vehicle = userVehicles.find(v => v._id === selectedId);
+      if (!vehicle) return;
+
+      if (vehicle.registrationDate) {
+        document.getElementById('registrationDate').value = new Date(vehicle.registrationDate).toISOString().split('T')[0];
+      }
+      if (vehicle.vehicleType) {
+        document.getElementById('vehicleType').value = vehicle.vehicleType;
+      }
+      if (vehicle.fuelType) {
+        document.getElementById('fuelType').value = vehicle.fuelType;
+      }
+      calculateVehicleMetrics();
+    }
+
+    function calculateVehicleMetrics(e) {
+      if (e) e.preventDefault();
+
+      const regDateVal = document.getElementById('registrationDate').value;
+      if (!regDateVal) return;
+
+      const regDate = new Date(regDateVal);
+      const today = new Date();
+
+      if (regDate > today) {
+        showAlert('alertBox', 'warning', 'Registration date cannot be in the future.');
+        return;
+      }
+
+      // Calculate exact difference in years, months, days
+      let years = today.getFullYear() - regDate.getFullYear();
+      let months = today.getMonth() - regDate.getMonth();
+      let days = today.getDate() - regDate.getDate();
+
+      if (days < 0) {
+        months -= 1;
+        const prevMonthLastDay = new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+        days += prevMonthLastDay;
+      }
+      if (months < 0) {
+        years -= 1;
+        months += 12;
+      }
+
+      // Display age
+      document.getElementById('resultAgeText').textContent = `${years} Years, ${months} Months`;
+      document.getElementById('resultDaysText').textContent = `Total age: ${years} years, ${months} months and ${days} days from registration date.`;
+
+      const vehicleType = document.getElementById('vehicleType').value;
+      const fuelType = document.getElementById('fuelType').value;
+      const state = document.getElementById('calcState').value;
+
+      // 15-Year Fitness Rule
+      const fitnessBadge = document.getElementById('fitnessBadge');
+      const fitnessDesc = document.getElementById('fitnessDesc');
+      const greenTaxBadge = document.getElementById('greenTaxBadge');
+      const greenTaxDesc = document.getElementById('greenTaxDesc');
+      const scrappageBadge = document.getElementById('scrappageBadge');
+      const scrappageDesc = document.getElementById('scrappageDesc');
+
+      const isOver15 = years >= 15;
+      const isOver20 = years >= 20;
+      const isDelhiDieselRestricted = (state === 'Delhi' && fuelType === 'Diesel' && years >= 10);
+      const isDelhiPetrolRestricted = (state === 'Delhi' && fuelType === 'Petrol' && years >= 15);
+
+      if (isDelhiDieselRestricted || isDelhiPetrolRestricted) {
+        fitnessBadge.className = 'badge badge-danger';
+        fitnessBadge.textContent = 'Prohibited in Delhi-NCR';
+        fitnessDesc.textContent = 'NGT Rule: Diesel > 10 yrs or Petrol > 15 yrs prohibited from plying in Delhi NCR.';
+      } else if (isOver15) {
+        fitnessBadge.className = 'badge badge-danger';
+        fitnessBadge.textContent = '15-Year Renewal Overdue';
+        fitnessDesc.textContent = 'Vehicle has crossed 15 years. Mandatory automated fitness test & RC renewal (Form 25) required.';
+      } else {
+        const remainingYears = 15 - years;
+        fitnessBadge.className = 'badge badge-success';
+        fitnessBadge.textContent = 'Active & Roadworthy';
+        fitnessDesc.textContent = `Valid under initial 15-year personal RC. Next statutory renewal due in ~${remainingYears} years.`;
+      }
+
+      // Green Tax Assessment
+      if (fuelType === 'Electric') {
+        greenTaxBadge.className = 'badge badge-success';
+        greenTaxBadge.textContent = '100% Green Tax Exempt';
+        greenTaxDesc.textContent = 'Electric Vehicles (Zero Emissions) are 100% exempt from Green Tax across India.';
+      } else if (fuelType === 'CNG') {
+        greenTaxBadge.className = 'badge badge-success';
+        greenTaxBadge.textContent = 'CNG Exemption Applied';
+        greenTaxDesc.textContent = 'Clean fuel vehicle (CNG) attracts zero or concessional environmental cess.';
+      } else if (isOver15) {
+        greenTaxBadge.className = 'badge badge-danger';
+        greenTaxBadge.textContent = 'Green Tax Payable';
+        greenTaxDesc.textContent = 'Applicable at 15% of road tax for next 5-year fitness renewal under CMV Rule 115.';
+      } else {
+        greenTaxBadge.className = 'badge badge-primary';
+        greenTaxBadge.textContent = 'Not Due Yet';
+        greenTaxDesc.textContent = 'Green Tax is only levied once vehicle crosses 15 years of operational service.';
+      }
+
+      // Scrappage Eligibility
+      if (isOver20 || (vehicleType === 'Commercial Vehicle' && isOver15)) {
+        scrappageBadge.className = 'badge badge-warning';
+        scrappageBadge.textContent = 'Eligible for Scrappage Rebate';
+        scrappageDesc.textContent = 'Qualifies for National Vehicle Scrappage Scheme certificate: 4-6% ex-showroom rebate + 25% road tax concession on new car.';
+      } else {
+        scrappageBadge.className = 'badge badge-success';
+        scrappageBadge.textContent = 'Not Scrappage Eligible';
+        scrappageDesc.textContent = 'Private vehicles become eligible for Voluntary Vehicle Fleet Modernization (VVMP) upon completing 20 years.';
+      }
+
+      // Calculate Fees
+      let testFee = 600;
+      let rcFee = 5000;
+      let greenTaxFee = 0;
+
+      if (vehicleType === 'Two Wheeler') {
+        testFee = 300;
+        rcFee = 1000;
+        if (isOver15 && fuelType !== 'Electric') greenTaxFee = 500;
+      } else if (vehicleType === 'Commercial Vehicle') {
+        testFee = 1000;
+        rcFee = 7500;
+        if (isOver15 && fuelType !== 'Electric') greenTaxFee = 2500;
+      } else {
+        // Four wheeler
+        testFee = 600;
+        rcFee = 5000;
+        if (isOver15 && fuelType !== 'Electric') greenTaxFee = 3500;
+      }
+
+      document.getElementById('feeTest').textContent = '₹ ' + testFee;
+      document.getElementById('feeRc').textContent = '₹ ' + rcFee;
+      document.getElementById('feeGreenTax').textContent = greenTaxFee > 0 ? ('₹ ' + greenTaxFee) : '₹ 0 (Not Due / Exempt)';
+      document.getElementById('feeTotal').textContent = '₹ ' + (testFee + rcFee + greenTaxFee);
+    }
+
+    function resetCalculator() {
+      document.getElementById('calcForm').reset();
+      const defaultDate = new Date();
+      defaultDate.setFullYear(defaultDate.getFullYear() - 4);
+      document.getElementById('registrationDate').value = defaultDate.toISOString().split('T')[0];
+      calculateVehicleMetrics();
+    }
+  </script>
+</body>
+</html>

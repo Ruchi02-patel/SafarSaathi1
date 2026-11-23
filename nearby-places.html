@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nearby Vehicle Services – SafarSaathi</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="layout-container">
+    <div id="sidebar-container"></div>
+
+    <div class="main-wrapper">
+      <div id="topbar-container"></div>
+
+      <main class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Nearby Vehicle Services & Facilities</h1>
+            <p class="page-subtitle">Find verified mechanics, 24x7 petrol pumps, authorized RTO offices, and certified PUC emission test centers.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-outline" onclick="loadLocations()">
+              <span>🔄 Refresh</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="alertBox"></div>
+
+        <!-- 4 Quick Stats -->
+        <div class="grid-4 stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon blue">📍</div>
+            <div class="stat-info">
+              <span class="stat-label">Total Facilities</span>
+              <span class="stat-value" id="statTotalLocations">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange">🔧</div>
+            <div class="stat-info">
+              <span class="stat-label">Verified Mechanics</span>
+              <span class="stat-value" id="statMechanics">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">⛽</div>
+            <div class="stat-info">
+              <span class="stat-label">24x7 Petrol Pumps</span>
+              <span class="stat-value" id="statPetrolPumps">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple">🏢</div>
+            <div class="stat-info">
+              <span class="stat-label">RTO & PUC Centers</span>
+              <span class="stat-value" id="statRtoPuc">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive Search & Filter Controls -->
+        <div class="card mb-4">
+          <div class="filter-bar" style="display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end;">
+            <div style="flex: 1.5; min-width: 220px;">
+              <label for="cityFilter" class="form-label" style="font-weight:600; font-size:13px; margin-bottom:4px; display:block;">Select City</label>
+              <select id="cityFilter" class="form-control" onchange="handleFilterChange()">
+                <option value="">Select a city</option>
+                <option value="Ahmedabad">Ahmedabad</option>
+                <option value="Surat">Surat</option>
+                <option value="Vadodara">Vadodara</option>
+                <option value="Rajkot">Rajkot</option>
+                <option value="Gandhinagar">Gandhinagar</option>
+                <option value="Anand">Anand</option>
+                <option value="Nadiad">Nadiad</option>
+                <option value="Bharuch">Bharuch</option>
+                <option value="Ankleshwar">Ankleshwar</option>
+                <option value="Valsad">Valsad</option>
+                <option value="Navsari">Navsari</option>
+                <option value="Junagadh">Junagadh</option>
+                <option value="Jamnagar">Jamnagar</option>
+                <option value="Bhavnagar">Bhavnagar</option>
+                <option value="Morbi">Morbi</option>
+                <option value="Mehsana">Mehsana</option>
+                <option value="Palanpur">Palanpur</option>
+                <option value="Porbandar">Porbandar</option>
+                <option value="Godhra">Godhra</option>
+                <option value="Dahod">Dahod</option>
+                <option value="Surendranagar">Surendranagar</option>
+                <option value="Amreli">Amreli</option>
+                <option value="Botad">Botad</option>
+                <option value="Patan">Patan</option>
+                <option value="Himmatnagar">Himmatnagar</option>
+              </select>
+            </div>
+            <div style="flex: 1.5; min-width: 220px;">
+              <label for="searchInput" class="form-label" style="font-weight:600; font-size:13px; margin-bottom:4px; display:block;">Search Facility</label>
+              <input type="text" id="searchInput" class="form-control" placeholder="🔍 Search name, landmark, service..." oninput="handleFilterChange()">
+            </div>
+            <div style="flex: 1.2; min-width: 170px;">
+              <label for="typeFilter" class="form-label" style="font-weight:600; font-size:13px; margin-bottom:4px; display:block;">Category</label>
+              <select id="typeFilter" class="form-control" onchange="handleFilterChange()">
+                <option value="All">All Categories</option>
+                <option value="Mechanic">🔧 Mechanics & Garages</option>
+                <option value="Petrol Pump">⛽ Petrol & CNG Pumps</option>
+                <option value="RTO Office">🏢 RTO Offices</option>
+                <option value="PUC Center">📋 PUC Centers</option>
+              </select>
+            </div>
+            <div style="padding-bottom:2px; display:flex; gap:8px;">
+              <button class="btn btn-secondary" onclick="resetFilters()">Reset</button>
+              <a href="/mechanics" class="btn btn-outline">🔧 Mechanics Directory</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Emergency Breakdown & Roadside Assistance Banner (Gujarat Focused) -->
+        <div class="card mb-4" style="background: linear-gradient(135deg, #0d2238 0%, #183a5a 100%); color: #fff; border: none; padding: 20px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;">
+            <div style="max-width: 600px;">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                <span style="font-size: 20px;">🚨</span>
+                <h3 style="font-size: 17px; font-weight: 700; color:#fff; margin:0;">Emergency Breakdown & Gujarat Roadside Assistance</h3>
+              </div>
+              <p style="font-size: 13px; color: #94a3b8; margin: 0;">Need immediate towing or jump-start? Dial the 24x7 Gujarat Roadside Assistance emergency toll-free helpline: <strong style="color:#38bdf8;">1800-233-0456</strong> or connect directly with verified service centers below.</p>
+            </div>
+            <div style="display:flex; gap:10px;">
+              <a href="tel:18002330456" class="btn btn-danger">
+                <span>📞 Call Gujarat Roadside SOS</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Locations Grid -->
+        <div id="locationsLoading" class="text-center py-5">
+          <div class="spinner"></div>
+          <p class="text-muted mt-2">Locating verified vehicle services near you...</p>
+        </div>
+
+        <div id="locationsEmpty" class="empty-state card" style="display:none; text-align:center; padding: 40px;">
+          <div style="font-size:48px; margin-bottom:12px;">📍</div>
+          <h3>No Facilities Found</h3>
+          <p class="text-muted">No nearby places matched your current search filters.</p>
+          <button class="btn btn-outline mt-3" onclick="resetFilters()">Clear Filters</button>
+        </div>
+
+        <div id="locationsGrid" class="grid-3" style="display:none;"></div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/navbar.js"></script>
+  <script>
+    let allLocations = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!requireAuth()) return;
+      loadLocations();
+    });
+
+    async function loadLocations() {
+      const loading = document.getElementById('locationsLoading');
+      const grid = document.getElementById('locationsGrid');
+      const empty = document.getElementById('locationsEmpty');
+
+      loading.style.display = 'block';
+      grid.style.display = 'none';
+      empty.style.display = 'none';
+
+      try {
+        const response = await apiGet('/locations');
+        allLocations = response.locations || response.data || [];
+        updateStats(allLocations);
+        renderLocations(allLocations);
+      } catch (err) {
+        showAlert('alertBox', 'danger', 'Failed to load nearby places: ' + err.message);
+      } finally {
+        loading.style.display = 'none';
+      }
+    }
+
+    function updateStats(items) {
+      document.getElementById('statTotalLocations').textContent = items.length;
+      document.getElementById('statMechanics').textContent = items.filter(l => l.type === 'Mechanic').length;
+      document.getElementById('statPetrolPumps').textContent = items.filter(l => l.type === 'Petrol Pump').length;
+      document.getElementById('statRtoPuc').textContent = items.filter(l => l.type === 'RTO Office' || l.type === 'PUC Center').length;
+    }
+
+    function handleFilterChange() {
+      const search = document.getElementById('searchInput').value.trim().toLowerCase();
+      const type = document.getElementById('typeFilter').value;
+      const city = document.getElementById('cityFilter').value;
+
+      const filtered = allLocations.filter(item => {
+        const matchesType = (type === 'All') || (item.type === type);
+        const matchesCity = (city === 'All') || (item.city && item.city.toLowerCase() === city.toLowerCase());
+        const matchesSearch = !search ||
+          (item.name && item.name.toLowerCase().includes(search)) ||
+          (item.address && item.address.toLowerCase().includes(search)) ||
+          (item.services && item.services.some(s => s.toLowerCase().includes(search)));
+
+        return matchesType && matchesCity && matchesSearch;
+      });
+
+      renderLocations(filtered);
+    }
+
+    function resetFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('typeFilter').value = 'All';
+      document.getElementById('cityFilter').value = 'All';
+      renderLocations(allLocations);
+    }
+
+    function renderLocations(items) {
+      const grid = document.getElementById('locationsGrid');
+      const empty = document.getElementById('locationsEmpty');
+
+      if (!items || items.length === 0) {
+        grid.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+      }
+
+      empty.style.display = 'none';
+      grid.style.display = 'grid';
+
+      grid.innerHTML = items.map(loc => {
+        let typeBadgeClass = 'badge-primary';
+        let typeIcon = '📍';
+        if (loc.type === 'Mechanic') {
+          typeBadgeClass = 'badge-warning';
+          typeIcon = '🔧';
+        } else if (loc.type === 'Petrol Pump') {
+          typeBadgeClass = 'badge-success';
+          typeIcon = '⛽';
+        } else if (loc.type === 'RTO Office') {
+          typeBadgeClass = 'badge-purple';
+          typeIcon = '🏢';
+        } else if (loc.type === 'PUC Center') {
+          typeBadgeClass = 'badge-info';
+          typeIcon = '📋';
+        }
+
+        const servicesHtml = (loc.services && loc.services.length > 0)
+          ? `<div style="display:flex; flex-wrap:wrap; gap:4px; margin: 10px 0;">
+              ${loc.services.map(s => `<span class="badge" style="background:#f1f5f9; color:#475569; font-size:11px;">${s}</span>`).join('')}
+             </div>`
+          : '';
+
+        const phoneLink = loc.phone ? `<a href="tel:${loc.phone}" class="btn btn-outline btn-sm" style="flex:1;">📞 Call</a>` : '';
+        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc.name + ', ' + loc.address + ', ' + loc.city)}`;
+
+        return `
+          <div class="card location-card" style="display:flex; flex-direction:column; justify-content:space-between; height:100%;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+                <span class="badge ${typeBadgeClass}">${typeIcon} ${loc.type}</span>
+                <span style="display:inline-flex; align-items:center; gap:3px; background:#fef3c7; color:#b45309; padding:2px 8px; border-radius:12px; font-weight:700; font-size:12px;">
+                  ⭐ ${loc.rating ? loc.rating.toFixed(1) : '4.5'}
+                </span>
+              </div>
+
+              <h3 style="font-size:16px; font-weight:700; color:var(--text-dark); margin-bottom:6px;">${loc.name}</h3>
+              <p style="font-size:13px; color:var(--text-muted); line-height:1.4; margin-bottom:10px;">
+                📍 ${loc.address}, ${loc.city}, ${loc.state || 'Gujarat'}
+              </p>
+
+              <div style="display:flex; justify-content:space-between; font-size:12px; color:#64748b; margin-bottom:10px; border-top:1px dashed #e2e8f0; border-bottom:1px dashed #e2e8f0; padding: 6px 0;">
+                <span>🕒 <strong>Timing:</strong> ${loc.timing || 'Open 24 Hours'}</span>
+                <span>📏 <strong>Distance:</strong> ${loc.distanceKm ? loc.distanceKm + ' km' : '~2 km'}</span>
+              </div>
+
+              ${servicesHtml}
+            </div>
+
+            <div style="display:flex; gap:8px; margin-top:14px; pt:10px;">
+              ${phoneLink || '<button class="btn btn-outline btn-sm" style="flex:1;" disabled>📞 Contact Verified</button>'}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verified Mechanics & Garages Directory – SafarSaathi</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="layout-container">
+    <div id="sidebar-container"></div>
+
+    <div class="main-wrapper">
+      <div id="topbar-container"></div>
+
+      <main class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Verified Mechanics & Automobile Garages</h1>
+            <p class="page-subtitle">Find authorized repair workshops, certified mechanics, and express service garages across Gujarat.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-outline" onclick="loadMechanics()">
+              <span>🔄 Refresh</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="alertBox"></div>
+
+        <!-- 4 Quick Stats -->
+        <div class="grid-4 stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon orange">🔧</div>
+            <div class="stat-info">
+              <span class="stat-label">Verified Garages</span>
+              <span class="stat-value" id="statTotalMechanics">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">⭐</div>
+            <div class="stat-info">
+              <span class="stat-label">Top Rated (4.5+)</span>
+              <span class="stat-value" id="statTopRated">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue">🏙️</div>
+            <div class="stat-info">
+              <span class="stat-label">Active Gujarat Cities</span>
+              <span class="stat-value" id="statCitiesCovered">25</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple">⚡</div>
+            <div class="stat-info">
+              <span class="stat-label">Emergency Helpline</span>
+              <span class="stat-value" style="font-size:16px;">1800-233-0456</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- City Filter & Search Bar (Maps Removed - Pure Dropdown Selection) -->
+        <div class="card mb-4">
+          <div class="filter-bar" style="display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end;">
+            <div style="flex: 1.5; min-width: 220px;">
+              <label for="citySelect" class="form-label" style="font-weight:600; font-size:13px; margin-bottom:4px; display:block;">Select City</label>
+              <select id="citySelect" class="form-control" onchange="handleCityChange()">
+                <option value="">Select a city</option>
+                <option value="Ahmedabad">Ahmedabad</option>
+                <option value="Surat">Surat</option>
+                <option value="Vadodara">Vadodara</option>
+                <option value="Rajkot">Rajkot</option>
+                <option value="Gandhinagar">Gandhinagar</option>
+                <option value="Anand">Anand</option>
+                <option value="Nadiad">Nadiad</option>
+                <option value="Bharuch">Bharuch</option>
+                <option value="Ankleshwar">Ankleshwar</option>
+                <option value="Valsad">Valsad</option>
+                <option value="Navsari">Navsari</option>
+                <option value="Junagadh">Junagadh</option>
+                <option value="Jamnagar">Jamnagar</option>
+                <option value="Bhavnagar">Bhavnagar</option>
+                <option value="Morbi">Morbi</option>
+                <option value="Mehsana">Mehsana</option>
+                <option value="Palanpur">Palanpur</option>
+                <option value="Porbandar">Porbandar</option>
+                <option value="Godhra">Godhra</option>
+                <option value="Dahod">Dahod</option>
+                <option value="Surendranagar">Surendranagar</option>
+                <option value="Amreli">Amreli</option>
+                <option value="Botad">Botad</option>
+                <option value="Patan">Patan</option>
+                <option value="Himmatnagar">Himmatnagar</option>
+              </select>
+            </div>
+
+            <div style="flex: 1.5; min-width: 200px;">
+              <label for="searchInput" class="form-label" style="font-weight:600; font-size:13px; margin-bottom:4px; display:block;">Search Workshop / Mechanic</label>
+              <input type="text" id="searchInput" class="form-control" placeholder="🔍 Search name, specialty..." oninput="handleSearchLocal()">
+            </div>
+
+            <div style="flex: 1.2; min-width: 170px;">
+              <label for="specFilter" class="form-label" style="font-weight:600; font-size:13px; margin-bottom:4px; display:block;">Specialization</label>
+              <select id="specFilter" class="form-control" onchange="handleSearchLocal()">
+                <option value="All">All Specializations</option>
+                <option value="General Service">General Service & Repair</option>
+                <option value="Engine">Engine Overhaul</option>
+                <option value="Brakes">Brakes & Suspension</option>
+                <option value="Electrical">Electrical & Battery</option>
+                <option value="AC">Car AC Servicing</option>
+              </select>
+            </div>
+
+            <div style="padding-bottom:2px;">
+              <button class="btn btn-secondary" onclick="resetFilters()">Reset</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mechanics Loading State -->
+        <div id="mechanicsLoading" class="text-center py-5">
+          <div class="spinner"></div>
+          <p class="text-muted mt-2">Fetching verified mechanics from Gujarat database...</p>
+        </div>
+
+        <!-- Mechanics Empty State -->
+        <div id="mechanicsEmpty" class="empty-state card" style="display:none; text-align:center; padding: 40px;">
+          <div style="font-size:48px; margin-bottom:12px;">🔧</div>
+          <h3 id="emptyTitle">No mechanics found in this city.</h3>
+          <p class="text-muted" id="emptySubtitle">Please select another city from the dropdown or try resetting your search.</p>
+          <button class="btn btn-outline mt-3" onclick="resetFilters()">View All Garages</button>
+        </div>
+
+        <!-- Mechanics Grid -->
+        <div id="mechanicsGrid" class="grid-3" style="display:none;"></div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/navbar.js"></script>
+  <script>
+    let allMechanics = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      renderNavbar();
+      loadMechanics();
+    });
+
+    async function handleCityChange() {
+      const city = document.getElementById('citySelect').value;
+      await loadMechanics(city);
+    }
+
+    async function loadMechanics(city = '') {
+      const loading = document.getElementById('mechanicsLoading');
+      const grid = document.getElementById('mechanicsGrid');
+      const empty = document.getElementById('mechanicsEmpty');
+
+      loading.style.display = 'block';
+      grid.style.display = 'none';
+      empty.style.display = 'none';
+
+      try {
+        let endpoint = '/mechanics';
+        if (city && city.trim() !== '') {
+          endpoint += `?city=${encodeURIComponent(city.trim())}`;
+        }
+        const response = await apiGet(endpoint);
+        allMechanics = response.mechanics || response.data || [];
+        updateStats(allMechanics);
+        handleSearchLocal();
+      } catch (err) {
+        showAlert('alertBox', 'danger', 'Failed to load mechanics: ' + err.message);
+      } finally {
+        loading.style.display = 'none';
+      }
+    }
+
+    function updateStats(items) {
+      document.getElementById('statTotalMechanics').textContent = items.length;
+      document.getElementById('statTopRated').textContent = items.filter(m => (m.rating || 0) >= 4.5).length;
+    }
+
+    function handleSearchLocal() {
+      const search = document.getElementById('searchInput').value.trim().toLowerCase();
+      const spec = document.getElementById('specFilter').value;
+      const city = document.getElementById('citySelect').value;
+
+      const filtered = allMechanics.filter(m => {
+        const matchesSpec = (spec === 'All') || (m.specialization && m.specialization.toLowerCase().includes(spec.toLowerCase()));
+        const matchesSearch = !search ||
+          (m.name && m.name.toLowerCase().includes(search)) ||
+          (m.shopName && m.shopName.toLowerCase().includes(search)) ||
+          (m.address && m.address.toLowerCase().includes(search)) ||
+          (m.specialization && m.specialization.toLowerCase().includes(search));
+
+        return matchesSpec && matchesSearch;
+      });
+
+      renderMechanics(filtered, city);
+    }
+
+    function resetFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('specFilter').value = 'All';
+      document.getElementById('citySelect').value = '';
+      loadMechanics('');
+    }
+
+    function renderMechanics(items, city = '') {
+      const grid = document.getElementById('mechanicsGrid');
+      const empty = document.getElementById('mechanicsEmpty');
+      const emptyTitle = document.getElementById('emptyTitle');
+      const emptySubtitle = document.getElementById('emptySubtitle');
+
+      if (!items || items.length === 0) {
+        grid.style.display = 'none';
+        empty.style.display = 'block';
+        if (city) {
+          emptyTitle.textContent = "No mechanics found in this city.";
+          emptySubtitle.textContent = `No verified automobile mechanics found for "${city}", Gujarat. Please select another city from the dropdown.`;
+        } else {
+          emptyTitle.textContent = "No mechanics found in this city.";
+          emptySubtitle.textContent = "No mechanics matched your filter criteria.";
+        }
+        return;
+      }
+
+      empty.style.display = 'none';
+      grid.style.display = 'grid';
+
+      grid.innerHTML = items.map(m => {
+        const servicesList = (m.servicesOffered && m.servicesOffered.length > 0)
+          ? m.servicesOffered
+          : (m.specialization ? [m.specialization] : ['General Service', 'Tire & Brakes']);
+
+        const servicesHtml = servicesList.map(s => `
+          <span class="badge" style="background:#f1f5f9; color:#475569; font-size:11px; margin-right:4px; margin-bottom:4px; display:inline-block;">
+            ✓ ${s}
+          </span>
+        `).join('');
+
+        const ratingVal = m.rating ? Number(m.rating).toFixed(1) : '4.5';
+        const reviews = m.reviewCount || 42;
+
+        return `
+          <div class="card location-card" style="display:flex; flex-direction:column; justify-content:space-between; height:100%;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+                <span class="badge badge-warning" style="font-size:11px;">🔧 Verified Workshop</span>
+                <span style="display:inline-flex; align-items:center; gap:4px; background:#fef3c7; color:#b45309; padding:2px 8px; border-radius:12px; font-weight:700; font-size:12px;">
+                  ⭐ ${ratingVal} <span style="font-weight:400; font-size:11px; color:#78350f;">(${reviews})</span>
+                </span>
+              </div>
+
+              <h3 style="font-size:16px; font-weight:700; color:var(--text-dark); margin-bottom:4px;">
+                ${m.shopName || m.name + ' Workshop'}
+              </h3>
+              
+              <p style="font-size:13px; font-weight:600; color:var(--primary-color); margin-bottom:8px;">
+                👨‍🔧 Lead Mechanic: ${m.name}
+              </p>
+
+              <p style="font-size:13px; color:var(--text-muted); line-height:1.4; margin-bottom:12px;">
+                📍 ${m.address}, ${m.city}, ${m.state || 'Gujarat'}
+              </p>
+
+              <div style="background:#f8fafc; border-radius:6px; padding:8px 10px; margin-bottom:12px; font-size:12px; border:1px solid #e2e8f0;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                  <span style="color:#64748b;">Specialization:</span>
+                  <strong style="color:#1e293b;">${m.specialization || 'Multi-brand Repair'}</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                  <span style="color:#64748b;">Experience:</span>
+                  <span style="color:#334155; font-weight:600;">${m.experienceYears || 5}+ Years</span>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="color:#64748b;">Working Hours:</span>
+                  <span style="color:#475569;">${m.timing || '9:00 AM - 8:00 PM'}</span>
+                </div>
+              </div>
+
+              <div style="margin-bottom:12px;">
+                <span style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:4px;">Services Offered:</span>
+                <div>${servicesHtml}</div>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:8px; margin-top:14px; pt:8px;">
+              <a href="tel:${m.phone}" class="btn btn-primary btn-sm" style="flex:1; text-align:center;">
+                📞 Call ${m.phone}
+              </a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Citizen Users – SafarSaathi Admin</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="layout-container">
+    <div id="admin-sidebar-container"></div>
+
+    <div class="main-wrapper">
+      <div id="admin-topbar-container"></div>
+
+      <main class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Citizen User Management</h1>
+            <p class="page-subtitle">Inspect registered vehicle owners, business fleet accounts, account activity, and permissions.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-outline" onclick="loadUsers()">
+              <span>🔄 Refresh List</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="alertBox"></div>
+
+        <!-- 4 Stat Counters -->
+        <div class="grid-4 stats-grid mb-4">
+          <div class="stat-card">
+            <div class="stat-icon blue">👥</div>
+            <div class="stat-info">
+              <span class="stat-label">Total Users</span>
+              <span class="stat-value" id="statTotalUsers">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">✅</div>
+            <div class="stat-info">
+              <span class="stat-label">Active Citizens</span>
+              <span class="stat-value" id="statActiveUsers">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple">🏢</div>
+            <div class="stat-info">
+              <span class="stat-label">Business Fleets</span>
+              <span class="stat-value" id="statBusinessUsers">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange">🚗</div>
+            <div class="stat-info">
+              <span class="stat-label">Average Vehicles / User</span>
+              <span class="stat-value" id="statAvgVehicles">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter & Search Bar -->
+        <div class="card mb-4">
+          <div class="filter-bar" style="display:flex; flex-wrap:wrap; gap:12px; align-items:center;">
+            <div style="flex:2; min-width:240px;">
+              <input type="text" id="searchInput" class="form-control" placeholder="🔍 Search by citizen name, email address, or phone..." oninput="filterUsers()">
+            </div>
+            <div style="flex:1; min-width:160px;">
+              <select id="statusFilter" class="form-control" onchange="filterUsers()">
+                <option value="All">All Statuses</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive / Suspended</option>
+              </select>
+            </div>
+            <div style="flex:1; min-width:160px;">
+              <select id="accountTypeFilter" class="form-control" onchange="filterUsers()">
+                <option value="All">All Account Types</option>
+                <option value="Individual">Individual Owners</option>
+                <option value="Business">Business Fleet Accounts</option>
+              </select>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="resetFilters()">Reset</button>
+          </div>
+        </div>
+
+        <!-- Users Table Card -->
+        <div class="card">
+          <div id="usersLoading" class="text-center py-5">
+            <div class="spinner"></div>
+            <p class="text-muted mt-2">Loading citizen user accounts...</p>
+          </div>
+
+          <div id="usersEmpty" class="empty-state text-center py-5" style="display:none;">
+            <div style="font-size:42px; margin-bottom:8px;">👥</div>
+            <h4>No Users Found</h4>
+            <p class="text-muted">No citizen records match your search criteria.</p>
+          </div>
+
+          <div class="table-responsive" id="usersTableContainer" style="display:none;">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Citizen Profile</th>
+                  <th>Contact Info</th>
+                  <th>Location</th>
+                  <th>Account Type</th>
+                  <th>Fleet Size</th>
+                  <th>Status</th>
+                  <th>Admin Actions</th>
+                </tr>
+              </thead>
+              <tbody id="usersTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/admin-navbar.js"></script>
+  <script>
+    let allUsers = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      requireAdminAuth();
+      loadUsers();
+    });
+
+    async function loadUsers() {
+      const loading = document.getElementById('usersLoading');
+      const container = document.getElementById('usersTableContainer');
+      const empty = document.getElementById('usersEmpty');
+
+      loading.style.display = 'block';
+      container.style.display = 'none';
+      empty.style.display = 'none';
+
+      try {
+        const response = await apiGet('/admin/users');
+        allUsers = response.users || [];
+        updateStats(allUsers);
+        renderUsers(allUsers);
+      } catch (err) {
+        showAlert('alertBox', 'danger', 'Failed to load user list: ' + err.message);
+      } finally {
+        loading.style.display = 'none';
+      }
+    }
+
+    function updateStats(items) {
+      const total = items.length;
+      const active = items.filter(u => u.status === 'Active').length;
+      const business = items.filter(u => u.accountType === 'Business').length;
+      const totalVehicles = items.reduce((sum, u) => sum + (u.vehicleCount || 0), 0);
+      const avg = total > 0 ? (totalVehicles / total).toFixed(1) : 0;
+
+      document.getElementById('statTotalUsers').textContent = total;
+      document.getElementById('statActiveUsers').textContent = active;
+      document.getElementById('statBusinessUsers').textContent = business;
+      document.getElementById('statAvgVehicles').textContent = `${avg} / user`;
+    }
+
+    function filterUsers() {
+      const search = document.getElementById('searchInput').value.trim().toLowerCase();
+      const status = document.getElementById('statusFilter').value;
+      const acctType = document.getElementById('accountTypeFilter').value;
+
+      const filtered = allUsers.filter(u => {
+        const matchesStatus = (status === 'All') || (u.status === status);
+        const matchesType = (acctType === 'All') || (u.accountType === acctType);
+        const matchesSearch = !search ||
+          (u.fullName && u.fullName.toLowerCase().includes(search)) ||
+          (u.email && u.email.toLowerCase().includes(search)) ||
+          (u.phone && u.phone.includes(search)) ||
+          (u.city && u.city.toLowerCase().includes(search));
+
+        return matchesStatus && matchesType && matchesSearch;
+      });
+
+      renderUsers(filtered);
+    }
+
+    function resetFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('statusFilter').value = 'All';
+      document.getElementById('accountTypeFilter').value = 'All';
+      renderUsers(allUsers);
+    }
+
+    function renderUsers(items) {
+      const tbody = document.getElementById('usersTableBody');
+      const container = document.getElementById('usersTableContainer');
+      const empty = document.getElementById('usersEmpty');
+
+      if (!items || items.length === 0) {
+        container.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+      }
+
+      empty.style.display = 'none';
+      container.style.display = 'block';
+
+      tbody.innerHTML = items.map(u => {
+        const initial = (u.fullName ? u.fullName.charAt(0) : 'U').toUpperCase();
+        const isActive = (u.status === 'Active');
+
+        return `
+          <tr>
+            <td>
+              <div style="display:flex; align-items:center; gap:10px;">
+                <div style="width:36px; height:36px; border-radius:50%; background:#1e62ff; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">
+                  ${initial}
+                </div>
+                <div>
+                  <strong>${u.fullName || 'User'}</strong>
+                  <div style="font-size:11px; color:#94a3b8;">ID: #${u._id.slice(-6).toUpperCase()}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div style="font-size:13px; font-weight:600; color:var(--text-dark);">${u.email}</div>
+              <div style="font-size:12px; color:#64748b;">📞 ${u.phone || 'N/A'}</div>
+            </td>
+            <td>
+              <div style="font-size:13px;">${u.city || 'Pune'}, ${u.state || 'MH'}</div>
+            </td>
+            <td>
+              <span class="badge ${u.accountType === 'Business' ? 'badge-primary' : 'badge-secondary'}">
+                ${u.accountType === 'Business' ? '🏢 Business' : '🚗 Individual'}
+              </span>
+            </td>
+            <td>
+              <span class="badge badge-purple" style="font-size:12px;">
+                🚗 ${u.vehicleCount || 0} Vehicles
+              </span>
+            </td>
+            <td>
+              <span class="badge ${isActive ? 'badge-success' : 'badge-danger'}">
+                ${u.status || 'Active'}
+              </span>
+            </td>
+            <td>
+              <div style="display:flex; gap:6px;">
+                <button class="btn btn-secondary btn-sm" onclick="toggleStatus('${u._id}', '${u.status}')" style="font-size:11px; padding:4px 8px;">
+                  ${isActive ? 'Suspend' : 'Activate'}
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="deleteUser('${u._id}', '${escapeHtml(u.fullName)}')" style="font-size:11px; padding:4px 8px;">
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function toggleStatus(id, currentStatus) {
+      const newStatus = (currentStatus === 'Active') ? 'Inactive' : 'Active';
+      try {
+        await apiPut(`/admin/users/${id}/status`, { status: newStatus });
+        showAlert('alertBox', 'success', `User status updated to ${newStatus}.`);
+        await loadUsers();
+      } catch (err) {
+        showAlert('alertBox', 'danger', 'Failed to update user status: ' + err.message);
+      }
+    }
+
+    async function deleteUser(id, name) {
+      if (!confirm(`Are you sure you want to permanently delete user "${name}" and all their registered vehicles, expenses, and service logs? This action is irreversible.`)) {
+        return;
+      }
+
+      try {
+        await apiDelete(`/admin/users/${id}`);
+        showAlert('alertBox', 'success', `User "${name}" has been deleted successfully.`);
+        await loadUsers();
+      } catch (err) {
+        showAlert('alertBox', 'danger', 'Failed to delete user: ' + err.message);
+      }
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+  </script>
+</body>
+</html>

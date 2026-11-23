@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fuel & Mileage Management – SafarSaathi</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="layout-container">
+    <div id="sidebar-container"></div>
+
+    <div class="main-wrapper">
+      <div id="topbar-container"></div>
+
+      <main class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Fuel & Mileage Management</h1>
+            <p class="page-subtitle">Track refuels, distance travelled, fuel expenditure, and real-world fuel economy.</p>
+          </div>
+          <button class="btn btn-primary" onclick="openFuelModal()">
+            <span>+ Log Refuel</span>
+          </button>
+        </div>
+
+        <div id="alertBox"></div>
+
+        <!-- 4 Fuel Analytics Metrics -->
+        <div class="grid-4 stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon orange">💳</div>
+            <div class="stat-info">
+              <span class="stat-label">Total Fuel Cost</span>
+              <span class="stat-value" id="statFuelTotalCost">₹ 0</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon blue">⛽</div>
+            <div class="stat-info">
+              <span class="stat-label">Total Fuel Consumed</span>
+              <span class="stat-value" id="statFuelTotalLiters">0 L</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon purple">🛣️</div>
+            <div class="stat-info">
+              <span class="stat-label">Distance Travelled</span>
+              <span class="stat-value" id="statFuelTotalDistance">0 km</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon green">⚡</div>
+            <div class="stat-info">
+              <span class="stat-label">Average Mileage</span>
+              <span class="stat-value text-success" id="statFuelAvgMileage">0 km/l</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vehicle Filter -->
+        <div class="card" style="margin-bottom: 24px; padding: 16px 20px;">
+          <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+            <label class="form-label" style="margin-bottom: 0;">Vehicle Filter:</label>
+            <select id="vehicleSelectFilter" class="form-select" style="max-width: 320px;" onchange="loadFuelRecords()">
+              <option value="">All Vehicles Combined</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Fuel Log Table -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Refueling History & Log Book</h2>
+          </div>
+          <div class="table-responsive">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Vehicle</th>
+                  <th>Odometer Reading</th>
+                  <th>Distance Run</th>
+                  <th>Quantity (L)</th>
+                  <th>Fuel Cost</th>
+                  <th>Mileage</th>
+                  <th>Fuel Station</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="fuelLogsTable">
+                <tr><td colspan="9" style="text-align: center; color: #94a3b8;">Loading fuel records...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Add Refuel Modal -->
+  <div class="modal-overlay" id="addFuelModal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Log Vehicle Refuel</h3>
+        <button class="modal-close-btn" onclick="closeFuelModal()">✕</button>
+      </div>
+      <form id="newFuelForm">
+        <div class="form-group">
+          <label class="form-label" for="modalVehicle">Select Vehicle *</label>
+          <select id="modalVehicle" class="form-select" required></select>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label" for="modalQuantity">Fuel Quantity (Litres) *</label>
+            <input type="number" id="modalQuantity" class="form-control" step="0.01" placeholder="e.g. 28.5" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="modalCost">Total Refuel Cost (₹) *</label>
+            <input type="number" id="modalCost" class="form-control" placeholder="e.g. 2912" required>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label" for="modalOdometer">Odometer Reading (km) *</label>
+            <input type="number" id="modalOdometer" class="form-control" placeholder="e.g. 42120" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="modalDate">Refill Date *</label>
+            <input type="date" id="modalDate" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="modalStation">Fuel Pump / Station Name</label>
+          <input type="text" id="modalStation" class="form-control" placeholder="e.g. Bharat Petroleum, Baner Highway">
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeFuelModal()">Cancel</button>
+          <button type="submit" id="saveFuelBtn" class="btn btn-primary">Save Refuel Entry</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/navbar.js"></script>
+  <script>
+    let vehicles = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!requireAuth()) return;
+      document.getElementById('modalDate').value = new Date().toISOString().split('T')[0];
+      initFuelPage();
+    });
+
+    async function initFuelPage() {
+      try {
+        const vRes = await apiGet('/vehicles');
+        vehicles = vRes.vehicles || vRes.data || [];
+
+        const filterSel = document.getElementById('vehicleSelectFilter');
+        const modalSel = document.getElementById('modalVehicle');
+
+        vehicles.forEach(v => {
+          const opt = `<option value="${v._id}">${v.vehicleNumber} – ${v.brand} ${v.model}</option>`;
+          filterSel.innerHTML += opt;
+          modalSel.innerHTML += opt;
+        });
+
+        loadFuelRecords();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function loadFuelRecords() {
+      const selectedId = document.getElementById('vehicleSelectFilter').value;
+      const query = selectedId ? `?vehicleId=${selectedId}` : '';
+
+      try {
+        const res = await apiGet('/fuel' + query);
+        const records = res.records || [];
+        const summary = res.summary || {};
+
+        document.getElementById('statFuelTotalCost').textContent = '₹ ' + (summary.totalCost || 0).toLocaleString('en-IN');
+        document.getElementById('statFuelTotalLiters').textContent = (summary.totalQuantity || 0) + ' L';
+        document.getElementById('statFuelTotalDistance').textContent = (summary.totalDistance || 0) + ' km';
+        document.getElementById('statFuelAvgMileage').textContent = (summary.averageMileage || 0) + ' km/l';
+
+        const tbody = document.getElementById('fuelLogsTable');
+        if (records.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: #94a3b8; padding: 24px;">No fuel logs found for this vehicle. Click "+ Log Refuel" to add your first record.</td></tr>';
+          return;
+        }
+
+        let html = '';
+        records.forEach(r => {
+          const dateStr = new Date(r.fuelDate || r.createdAt).toLocaleDateString('en-IN', {
+            day: 'numeric', month: 'short', year: 'numeric'
+          });
+          const vNum = r.vehicleId ? (r.vehicleId.vehicleNumber || 'Vehicle') : 'Vehicle';
+          const mileageBadge = r.calculatedMileage > 0 
+            ? `<span class="badge badge-success">${r.calculatedMileage} km/l</span>` 
+            : '<span class="badge badge-secondary">Baseline Fill</span>';
+
+          html += `
+            <tr>
+              <td><strong>${dateStr}</strong></td>
+              <td><span class="badge badge-info">${vNum}</span></td>
+              <td>${r.odometerReading.toLocaleString('en-IN')} km</td>
+              <td>${r.distanceTravelled > 0 ? r.distanceTravelled + ' km' : '—'}</td>
+              <td>${r.fuelQuantity} L (${r.fuelType})</td>
+              <td><strong>₹ ${r.fuelCost.toLocaleString('en-IN')}</strong></td>
+              <td>${mileageBadge}</td>
+              <td>${r.fuelStation || 'Petrol Pump'}</td>
+              <td>
+                <button class="btn btn-danger btn-sm" onclick="deleteFuelEntry('${r._id}')">🗑️</button>
+              </td>
+            </tr>
+          `;
+        });
+
+        tbody.innerHTML = html;
+
+      } catch (err) {
+        document.getElementById('fuelLogsTable').innerHTML = `<tr><td colspan="9" class="text-danger" style="text-align: center;">Error loading fuel data: ${err.message}</td></tr>`;
+      }
+    }
+
+    function openFuelModal() {
+      document.getElementById('addFuelModal').style.display = 'flex';
+    }
+
+    function closeFuelModal() {
+      document.getElementById('addFuelModal').style.display = 'none';
+    }
+
+    document.getElementById('newFuelForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const vehicleId = document.getElementById('modalVehicle').value;
+      const fuelQuantity = document.getElementById('modalQuantity').value;
+      const fuelCost = document.getElementById('modalCost').value;
+      const odometerReading = document.getElementById('modalOdometer').value;
+      const fuelDate = document.getElementById('modalDate').value;
+      const fuelStation = document.getElementById('modalStation').value.trim();
+      const btn = document.getElementById('saveFuelBtn');
+
+      btn.disabled = true;
+
+      try {
+        await apiPost('/fuel', {
+          vehicleId,
+          fuelQuantity,
+          fuelCost,
+          odometerReading,
+          fuelDate,
+          fuelStation
+        });
+
+        showAlert('alertBox', 'Fuel refill logged and mileage calculated!', 'success');
+        closeFuelModal();
+        loadFuelRecords();
+      } catch (err) {
+        alert('Failed: ' + err.message);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    async function deleteFuelEntry(id) {
+      if (!confirm('Are you sure you want to delete this fuel record?')) return;
+      try {
+        await apiDelete('/fuel/' + id);
+        showAlert('alertBox', 'Fuel record deleted.', 'success');
+        loadFuelRecords();
+      } catch (err) {
+        showAlert('alertBox', 'Failed to delete: ' + err.message);
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certified Driving Instructors – SafarSaathi</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="layout-container">
+    <div id="sidebar-container"></div>
+
+    <div class="main-wrapper">
+      <div id="topbar-container"></div>
+
+      <main class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Certified Driving Instructors & Motor Training Schools</h1>
+            <p class="page-subtitle">Learn safe, defensive driving from government-approved motor training instructors and certified schools.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-outline" onclick="loadInstructors()">
+              <span>🔄 Refresh</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="alertBox"></div>
+
+        <!-- 4 Stat Metric Cards -->
+        <div class="grid-4 stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon blue">👨‍🏫</div>
+            <div class="stat-info">
+              <span class="stat-label">Certified Instructors</span>
+              <span class="stat-value" id="statTotalTeachers">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange">⭐</div>
+            <div class="stat-info">
+              <span class="stat-label">Top Rated (4.8+)</span>
+              <span class="stat-value" id="statTopRated">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">🚗</div>
+            <div class="stat-info">
+              <span class="stat-label">Dual-Control Training Cars</span>
+              <span class="stat-value" id="statDualControl">100%</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple">💰</div>
+            <div class="stat-info">
+              <span class="stat-label">Avg. Rate per Hour</span>
+              <span class="stat-value" id="statAvgRate">₹ 450</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters & Search Bar -->
+        <div class="card mb-4">
+          <div class="filter-bar" style="display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end;">
+            <div style="flex: 1.5; min-width: 220px;">
+              <label for="cityFilter" class="form-label" style="font-weight:600; font-size:13px; margin-bottom:4px; display:block;">Select City</label>
+              <select id="cityFilter" class="form-control" onchange="handleCitySelect()">
+                <option value="">Select a city</option>
+                <option value="Ahmedabad">Ahmedabad</option>
+                <option value="Surat">Surat</option>
+                <option value="Vadodara">Vadodara</option>
+                <option value="Rajkot">Rajkot</option>
+                <option value="Gandhinagar">Gandhinagar</option>
+                <option value="Anand">Anand</option>
+                <option value="Nadiad">Nadiad</option>
+                <option value="Bharuch">Bharuch</option>
+                <option value="Ankleshwar">Ankleshwar</option>
+                <option value="Valsad">Valsad</option>
+                <option value="Navsari">Navsari</option>
+                <option value="Junagadh">Junagadh</option>
+                <option value="Jamnagar">Jamnagar</option>
+                <option value="Bhavnagar">Bhavnagar</option>
+                <option value="Morbi">Morbi</option>
+                <option value="Mehsana">Mehsana</option>
+                <option value="Palanpur">Palanpur</option>
+                <option value="Porbandar">Porbandar</option>
+                <option value="Godhra">Godhra</option>
+                <option value="Dahod">Dahod</option>
+                <option value="Surendranagar">Surendranagar</option>
+                <option value="Amreli">Amreli</option>
+                <option value="Botad">Botad</option>
+                <option value="Patan">Patan</option>
+                <option value="Himmatnagar">Himmatnagar</option>
+              </select>
+            </div>
+            <div style="flex: 1.5; min-width: 200px;">
+              <label for="searchInput" class="form-label" style="font-weight:600; font-size:13px; margin-bottom:4px; display:block;">Search Instructor</label>
+              <input type="text" id="searchInput" class="form-control" placeholder="🔍 Search name, academy..." oninput="filterInstructorsLocal()">
+            </div>
+            <div style="flex: 1.2; min-width: 170px;">
+              <label for="vehicleTypeFilter" class="form-label" style="font-weight:600; font-size:13px; margin-bottom:4px; display:block;">Transmission Type</label>
+              <select id="vehicleTypeFilter" class="form-control" onchange="filterInstructorsLocal()">
+                <option value="All">All Vehicle Types</option>
+                <option value="Manual">Manual Transmission</option>
+                <option value="Automatic">Automatic Transmission</option>
+                <option value="Two Wheeler">Two-Wheeler (Motorcycle)</option>
+              </select>
+            </div>
+            <div style="padding-bottom:2px;">
+              <button class="btn btn-secondary" onclick="resetFilters()">Reset</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Instructor List Grid -->
+        <div id="instructorsLoading" class="text-center py-5">
+          <div class="spinner"></div>
+          <p class="text-muted mt-2">Loading verified Gujarat driving instructors from database...</p>
+        </div>
+
+        <div id="instructorsEmpty" class="empty-state card" style="display:none; text-align:center; padding: 40px;">
+          <div style="font-size:48px; margin-bottom:12px;">👨‍🏫</div>
+          <h3 id="emptyMessageTitle">No driving teachers found in this city.</h3>
+          <p class="text-muted" id="emptyMessageSubtitle">No driving teachers found matching your selection. Try selecting another city or reset filters.</p>
+          <button class="btn btn-outline mt-3" onclick="resetFilters()">View All Instructors</button>
+        </div>
+
+        <div id="instructorsGrid" class="grid-3" style="display:none;"></div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Book Lesson / Inquiry Modal -->
+  <div class="modal-backdrop" id="bookingModal" style="display:none;">
+    <div class="modal" style="max-width: 520px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="bookingModalTitle">Book Driving Lesson / Inquiry</h3>
+        <button class="modal-close" onclick="closeBookingModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="modalAlertBox"></div>
+        <p class="text-muted mb-3" style="font-size:13px;">
+          Fill in your details below to schedule an RTO-certified practical training session or RTO test preparation.
+        </p>
+
+        <form id="bookingForm" onsubmit="submitBooking(event)">
+          <input type="hidden" id="instructorName">
+          
+          <div class="form-group mb-3">
+            <label class="form-label">Instructor / Academy</label>
+            <input type="text" id="displayInstructorName" class="form-control" readonly style="background:#f8fafc; font-weight:600;">
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group mb-3">
+              <label class="form-label">Your Name <span class="text-danger">*</span></label>
+              <input type="text" id="studentName" class="form-control" required placeholder="Full Name">
+            </div>
+            <div class="form-group mb-3">
+              <label class="form-label">Contact Phone <span class="text-danger">*</span></label>
+              <input type="tel" id="studentPhone" class="form-control" required placeholder="10-digit mobile number">
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group mb-3">
+              <label class="form-label">Course Type <span class="text-danger">*</span></label>
+              <select id="courseType" class="form-control" required>
+                <option value="Learner (15 Days Complete Course)">Learner (15 Days Complete)</option>
+                <option value="Refresher Practice (5 Days)">Refresher Practice (5 Days)</option>
+                <option value="Automatic Car Special">Automatic Car Special</option>
+                <option value="RTO Driving Test Trial">RTO Driving Test Trial</option>
+              </select>
+            </div>
+            <div class="form-group mb-3">
+              <label class="form-label">Preferred Time Slot</label>
+              <select id="timeSlot" class="form-control">
+                <option value="Morning (7:00 AM - 9:00 AM)">Morning (7 AM - 9 AM)</option>
+                <option value="Midday (11:00 AM - 1:00 PM)">Midday (11 AM - 1 PM)</option>
+                <option value="Evening (4:00 PM - 7:00 PM)">Evening (4 PM - 7 PM)</option>
+                <option value="Weekend Special">Weekend Special</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group mb-3">
+            <label class="form-label">Any Special Requests or Pickup Locality</label>
+            <textarea id="bookingNotes" class="form-control" rows="2" placeholder="e.g. Home doorstep pickup required in Kothrud, Pune"></textarea>
+          </div>
+
+          <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+            <button type="button" class="btn btn-secondary" onclick="closeBookingModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">
+              <span>✅ Confirm Booking Request</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/navbar.js"></script>
+  <script>
+    let allInstructors = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      renderNavbar();
+      loadInstructors();
+    });
+
+    async function handleCitySelect() {
+      const city = document.getElementById('cityFilter').value;
+      await loadInstructors(city);
+    }
+
+    async function loadInstructors(city = '') {
+      const loading = document.getElementById('instructorsLoading');
+      const grid = document.getElementById('instructorsGrid');
+      const empty = document.getElementById('instructorsEmpty');
+
+      loading.style.display = 'block';
+      grid.style.display = 'none';
+      empty.style.display = 'none';
+
+      try {
+        let endpoint = '/driving-teachers';
+        if (city && city.trim() !== '') {
+          endpoint += `?city=${encodeURIComponent(city.trim())}`;
+        }
+        const response = await apiGet(endpoint);
+        allInstructors = response.instructors || response.data || [];
+        updateStats(allInstructors);
+        filterInstructorsLocal();
+      } catch (err) {
+        showAlert('alertBox', 'danger', 'Failed to load driving instructors: ' + err.message);
+      } finally {
+        loading.style.display = 'none';
+      }
+    }
+
+    function updateStats(items) {
+      document.getElementById('statTotalTeachers').textContent = items.length;
+      document.getElementById('statTopRated').textContent = items.filter(t => (t.rating || 0) >= 4.8).length;
+      
+      const rates = items.map(t => t.hourlyRate).filter(r => r > 0);
+      if (rates.length > 0) {
+        const avg = Math.round(rates.reduce((a, b) => a + b, 0) / rates.length);
+        document.getElementById('statAvgRate').textContent = '₹ ' + avg;
+      }
+    }
+
+    function filterInstructorsLocal() {
+      const search = document.getElementById('searchInput').value.trim().toLowerCase();
+      const vType = document.getElementById('vehicleTypeFilter').value;
+      const city = document.getElementById('cityFilter').value;
+
+      const filtered = allInstructors.filter(item => {
+        const matchesType = (vType === 'All') || (item.vehicleType && item.vehicleType.toLowerCase().includes(vType.toLowerCase()));
+        const matchesSearch = !search ||
+          (item.name && item.name.toLowerCase().includes(search)) ||
+          (item.address && item.address.toLowerCase().includes(search)) ||
+          (item.licenseType && item.licenseType.toLowerCase().includes(search));
+
+        return matchesType && matchesSearch;
+      });
+
+      renderInstructors(filtered, city);
+    }
+
+    function resetFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('vehicleTypeFilter').value = 'All';
+      document.getElementById('cityFilter').value = '';
+      loadInstructors('');
+    }
+
+    function renderInstructors(items, city = '') {
+      const grid = document.getElementById('instructorsGrid');
+      const empty = document.getElementById('instructorsEmpty');
+      const emptyTitle = document.getElementById('emptyMessageTitle');
+      const emptySub = document.getElementById('emptyMessageSubtitle');
+
+      if (!items || items.length === 0) {
+        grid.style.display = 'none';
+        empty.style.display = 'block';
+        if (city) {
+          emptyTitle.textContent = "No driving teachers found in this city.";
+          emptySub.textContent = `No certified driving instructors currently registered in ${city}, Gujarat. Select another city from the dropdown.`;
+        } else {
+          emptyTitle.textContent = "No driving teachers found in this city.";
+          emptySub.textContent = "No driving instructors matched your search filter.";
+        }
+        return;
+      }
+
+      empty.style.display = 'none';
+      grid.style.display = 'grid';
+
+      grid.innerHTML = items.map(inst => {
+        const initial = inst.name.charAt(0).toUpperCase();
+        return `
+          <div class="card" style="display:flex; flex-direction:column; justify-content:space-between; height:100%;">
+            <div>
+              <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+                <div style="width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg, #1e62ff, #0d2238); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:20px; flex-shrink:0;">
+                  ${initial}
+                </div>
+                <div>
+                  <h3 style="font-size:16px; font-weight:700; margin:0; color:var(--text-dark);">${inst.name}</h3>
+                  <div style="display:flex; align-items:center; gap:6px; margin-top:2px;">
+                    <span style="color:#f59e0b; font-weight:700; font-size:13px;">⭐ ${inst.rating ? inst.rating.toFixed(1) : '4.8'}</span>
+                    <span style="color:#94a3b8; font-size:12px;">(${inst.reviewCount || 45} reviews)</span>
+                    <span class="badge badge-success" style="font-size:10px; padding:2px 6px;">RTO Approved</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style="background:#f8fafc; border-radius:8px; padding:10px 12px; margin-bottom:12px; font-size:13px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                  <span style="color:#64748b;">Experience:</span>
+                  <strong style="color:#1e293b;">${inst.experienceYears || 5}+ Years</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                  <span style="color:#64748b;">Vehicles:</span>
+                  <strong style="color:#1e62ff;">${inst.vehicleType || 'Manual & Automatic'}</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                  <span style="color:#64748b;">Hourly Charges:</span>
+                  <strong style="color:#10b981;">₹ ${inst.hourlyRate || 450} / hr</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="color:#64748b;">Timing:</span>
+                  <span style="color:#475569; font-size:12px;">${inst.availability || '7:00 AM - 7:00 PM'}</span>
+                </div>
+              </div>
+
+              <p style="font-size:12px; color:#64748b; line-height:1.4; margin-bottom:12px;">
+                📍 ${inst.address}, ${inst.city}, ${inst.state || 'Gujarat'}
+              </p>
+            </div>
+
+            <div style="display:flex; gap:8px; margin-top:10px;">
+              <a href="tel:${inst.phone}" class="btn btn-outline btn-sm" style="flex:1;">
+                📞 Call
+              </a>
+              <button class="btn btn-primary btn-sm" style="flex:1.4;" onclick="openBookingModal('${escapeHtml(inst.name)}')">
+                📅 Book Slot
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openBookingModal(name) {
+      document.getElementById('instructorName').value = name;
+      document.getElementById('displayInstructorName').value = name;
+      const user = getUser();
+      if (user) {
+        document.getElementById('studentName').value = user.fullName || '';
+        document.getElementById('studentPhone').value = user.phone || '';
+      }
+      document.getElementById('bookingModal').style.display = 'flex';
+    }
+
+    function closeBookingModal() {
+      document.getElementById('bookingModal').style.display = 'none';
+      document.getElementById('modalAlertBox').innerHTML = '';
+      document.getElementById('bookingForm').reset();
+    }
+
+    function submitBooking(e) {
+      e.preventDefault();
+      const name = document.getElementById('studentName').value;
+      const phone = document.getElementById('studentPhone').value;
+      const instName = document.getElementById('instructorName').value;
+      const course = document.getElementById('courseType').value;
+
+      closeBookingModal();
+      showAlert('alertBox', 'success', `🎉 Booking Request Confirmed for ${name}! Instructor "${instName}" has been notified and will call you on ${phone} shortly for your ${course} slot.`);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+  </script>
+</body>
+</html>

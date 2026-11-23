@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Service Listings Directory – SafarSaathi Admin</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="layout-container">
+    <div id="admin-sidebar-container"></div>
+
+    <div class="main-wrapper">
+      <div id="admin-topbar-container"></div>
+
+      <main class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Service Listings & Facilities Management</h1>
+            <p class="page-subtitle">Manage verified mechanics, motor driving teachers, road signs repository, and municipal RTO/PUC locations.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-primary" onclick="openAddModal()">
+              <span>+ Add Service Listing</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="alertBox"></div>
+
+        <!-- 4 Sub-directory Tabs -->
+        <div class="tab-navigation">
+          <button class="tab-btn active" id="tabBtnMechanics" onclick="switchTab('mechanics')">
+            🔧 Mechanics & Garages (<span id="countMechanics">0</span>)
+          </button>
+          <button class="tab-btn" id="tabBtnTeachers" onclick="switchTab('teachers')">
+            👨‍🏫 Driving Teachers (<span id="countTeachers">0</span>)
+          </button>
+          <button class="tab-btn" id="tabBtnSigns" onclick="switchTab('signs')">
+            🛑 Traffic Signs Directory (<span id="countSigns">0</span>)
+          </button>
+          <button class="tab-btn" id="tabBtnLocations" onclick="switchTab('locations')">
+            📍 Nearby Places & RTOs (<span id="countLocations">0</span>)
+          </button>
+        </div>
+
+        <!-- Tab 1: Mechanics -->
+        <div id="tabMechanics" class="tab-pane active">
+          <div class="card">
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Shop / Workshop Name</th>
+                    <th>Lead Mechanic</th>
+                    <th>Specialization</th>
+                    <th>City</th>
+                    <th>Phone</th>
+                    <th>Rating</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="tableMechanicsBody">
+                  <tr><td colspan="7" class="text-center text-muted">Loading mechanics directory...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Driving Teachers -->
+        <div id="tabTeachers" class="tab-pane" style="display:none;">
+          <div class="card">
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Instructor / Academy Name</th>
+                    <th>Experience</th>
+                    <th>Vehicle Type Taught</th>
+                    <th>City</th>
+                    <th>Hourly Rate</th>
+                    <th>Phone</th>
+                    <th>Rating</th>
+                  </tr>
+                </thead>
+                <tbody id="tableTeachersBody">
+                  <tr><td colspan="7" class="text-center text-muted">Loading driving teachers...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Traffic Signs -->
+        <div id="tabSigns" class="tab-pane" style="display:none;">
+          <div class="card">
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Sign Code</th>
+                    <th>Sign Name</th>
+                    <th>Category</th>
+                    <th>Meaning & Purpose</th>
+                    <th>Shape & Color</th>
+                  </tr>
+                </thead>
+                <tbody id="tableSignsBody">
+                  <tr><td colspan="5" class="text-center text-muted">Loading traffic signs...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 4: Locations -->
+        <div id="tabLocations" class="tab-pane" style="display:none;">
+          <div class="card">
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Facility Name</th>
+                    <th>Facility Type</th>
+                    <th>Address</th>
+                    <th>City</th>
+                    <th>Operating Hours</th>
+                    <th>Rating</th>
+                  </tr>
+                </thead>
+                <tbody id="tableLocationsBody">
+                  <tr><td colspan="6" class="text-center text-muted">Loading nearby locations...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Add Service Listing Modal -->
+  <div class="modal-backdrop" id="addListingModal" style="display:none;">
+    <div class="modal" style="max-width: 540px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Add Verified Mechanic / Workshop</h3>
+        <button class="modal-close" onclick="closeAddModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="modalAlertBox"></div>
+        <form id="addListingForm" onsubmit="submitNewListing(event)">
+          <div class="form-group mb-3">
+            <label class="form-label">Workshop / Garage Name <span class="text-danger">*</span></label>
+            <input type="text" id="mShopName" class="form-control" required placeholder="e.g. Apex Multi-brand Car Care">
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group mb-3">
+              <label class="form-label">Contact Person Name <span class="text-danger">*</span></label>
+              <input type="text" id="mName" class="form-control" required placeholder="e.g. Rajesh Shinde">
+            </div>
+            <div class="form-group mb-3">
+              <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+              <input type="tel" id="mPhone" class="form-control" required placeholder="10-digit mobile">
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group mb-3">
+              <label class="form-label">Specialization</label>
+              <select id="mSpec" class="form-control">
+                <option value="General Service & Engine Overhaul">General Service & Overhaul</option>
+                <option value="Brake & Suspension Specialist">Brake & Suspension</option>
+                <option value="Auto Electrical & AC Repair">Electrical & AC Repair</option>
+                <option value="Tyre & Wheel Alignment">Tyre & Alignment</option>
+              </select>
+            </div>
+            <div class="form-group mb-3">
+              <label class="form-label">City <span class="text-danger">*</span></label>
+              <input type="text" id="mCity" class="form-control" required placeholder="e.g. Pune">
+            </div>
+          </div>
+
+          <div class="form-group mb-3">
+            <label class="form-label">Full Street Address <span class="text-danger">*</span></label>
+            <input type="text" id="mAddress" class="form-control" required placeholder="Plot No., Road, Area">
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group mb-3">
+              <label class="form-label">Operating Hours</label>
+              <input type="text" id="mTiming" class="form-control" value="8:30 AM - 8:30 PM">
+            </div>
+            <div class="form-group mb-3">
+              <label class="form-label">Initial Rating</label>
+              <input type="number" id="mRating" class="form-control" step="0.1" min="1" max="5" value="4.6">
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px;">
+            <button type="button" class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">
+              <span>+ Save Workshop Listing</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/admin-navbar.js"></script>
+  <script>
+    let mechanicsList = [];
+    let teachersList = [];
+    let signsList = [];
+    let locationsList = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      requireAdminAuth();
+      loadAllDirectories();
+    });
+
+    async function loadAllDirectories() {
+      try {
+        const [resMech, resTeach, resSigns, resLoc] = await Promise.all([
+          apiGet('/mechanics'),
+          apiGet('/driving-teachers'),
+          apiGet('/traffic-signs'),
+          apiGet('/locations')
+        ]);
+
+        mechanicsList = resMech.mechanics || resMech.data || [];
+        teachersList = resTeach.instructors || resTeach.data || [];
+        signsList = resSigns.signs || resSigns.data || [];
+        locationsList = resLoc.locations || resLoc.data || [];
+
+        // Tab counts
+        document.getElementById('countMechanics').textContent = mechanicsList.length;
+        document.getElementById('countTeachers').textContent = teachersList.length;
+        document.getElementById('countSigns').textContent = signsList.length;
+        document.getElementById('countLocations').textContent = locationsList.length;
+
+        renderMechanics(mechanicsList);
+        renderTeachers(teachersList);
+        renderSigns(signsList);
+        renderLocations(locationsList);
+      } catch (err) {
+        showAlert('alertBox', 'danger', 'Failed to load directories: ' + err.message);
+      }
+    }
+
+    function switchTab(tabName) {
+      ['mechanics', 'teachers', 'signs', 'locations'].forEach(t => {
+        document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}`).style.display = (t === tabName) ? 'block' : 'none';
+        document.getElementById(`tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`).className = (t === tabName) ? 'tab-btn active' : 'tab-btn';
+      });
+    }
+
+    function renderMechanics(items) {
+      const tbody = document.getElementById('tableMechanicsBody');
+      if (items.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No mechanics found.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = items.map(m => `
+        <tr>
+          <td><strong>${m.shopName || m.name}</strong><div style="font-size:11px; color:#64748b;">${m.address || ''}</div></td>
+          <td>${m.name}</td>
+          <td><span class="badge badge-primary">${m.specialization || 'General Service'}</span></td>
+          <td>${m.city || 'Pune'}</td>
+          <td>📞 ${m.phone}</td>
+          <td><span style="color:#d97706; font-weight:700;">⭐ ${m.rating ? m.rating.toFixed(1) : '4.5'}</span></td>
+          <td><span class="badge badge-success">${m.status || 'Active'}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    function renderTeachers(items) {
+      const tbody = document.getElementById('tableTeachersBody');
+      if (items.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No driving teachers found.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = items.map(t => `
+        <tr>
+          <td><strong>${t.name}</strong><div style="font-size:11px; color:#64748b;">${t.address}</div></td>
+          <td>${t.experienceYears || 5}+ Years</td>
+          <td><span class="badge badge-info">${t.vehicleType || 'Manual & Auto'}</span></td>
+          <td>${t.city || 'Pune'}</td>
+          <td><strong style="color:#10b981;">₹ ${t.hourlyRate || 450} / hr</strong></td>
+          <td>📞 ${t.phone}</td>
+          <td><span style="color:#d97706; font-weight:700;">⭐ ${t.rating ? t.rating.toFixed(1) : '4.8'}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    function renderSigns(items) {
+      const tbody = document.getElementById('tableSignsBody');
+      if (items.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No traffic signs recorded.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = items.map(s => {
+        let badgeClass = s.category === 'Regulatory' ? 'badge-danger' : (s.category === 'Warning' ? 'badge-warning' : 'badge-info');
+        return `
+          <tr>
+            <td><span class="badge badge-outline" style="font-family:monospace; font-weight:700;">${s.code || 'IRC'}</span></td>
+            <td><strong>${s.name}</strong></td>
+            <td><span class="badge ${badgeClass}">${s.category}</span></td>
+            <td>
+              <div style="font-weight:600; color:#1e62ff; font-size:13px;">${s.meaning}</div>
+              <div style="font-size:11px; color:#64748b;">${s.description}</div>
+            </td>
+            <td>${s.shape || 'Circle'} (${s.color || 'Red'})</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderLocations(items) {
+      const tbody = document.getElementById('tableLocationsBody');
+      if (items.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No nearby locations recorded.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = items.map(l => {
+        let bClass = l.type === 'Petrol Pump' ? 'badge-success' : (l.type === 'Mechanic' ? 'badge-warning' : 'badge-purple');
+        return `
+          <tr>
+            <td><strong>${l.name}</strong></td>
+            <td><span class="badge ${bClass}">${l.type}</span></td>
+            <td>${l.address}</td>
+            <td>${l.city}</td>
+            <td>${l.timing || '24x7'}</td>
+            <td><span style="color:#d97706; font-weight:700;">⭐ ${l.rating ? l.rating.toFixed(1) : '4.3'}</span></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function openAddModal() {
+      document.getElementById('addListingModal').style.display = 'flex';
+    }
+
+    function closeAddModal() {
+      document.getElementById('addListingModal').style.display = 'none';
+      document.getElementById('modalAlertBox').innerHTML = '';
+      document.getElementById('addListingForm').reset();
+    }
+
+    async function submitNewListing(e) {
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById('mName').value.trim(),
+        shopName: document.getElementById('mShopName').value.trim(),
+        phone: document.getElementById('mPhone').value.trim(),
+        specialization: document.getElementById('mSpec').value,
+        city: document.getElementById('mCity').value.trim(),
+        address: document.getElementById('mAddress').value.trim(),
+        timing: document.getElementById('mTiming').value.trim(),
+        rating: Number(document.getElementById('mRating').value) || 4.5,
+        status: 'Active'
+      };
+
+      try {
+        await apiPost('/mechanics', payload);
+        closeAddModal();
+        showAlert('alertBox', 'success', '🎉 Verified workshop added successfully to the public directory!');
+        await loadAllDirectories();
+      } catch (err) {
+        showAlert('modalAlertBox', 'danger', 'Failed to add workshop: ' + err.message);
+      }
+    }
+  </script>
+</body>
+</html>

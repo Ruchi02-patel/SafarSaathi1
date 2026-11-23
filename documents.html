@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document Vault – SafarSaathi</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="layout-container">
+    <div id="sidebar-container"></div>
+
+    <div class="main-wrapper">
+      <div id="topbar-container"></div>
+
+      <main class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Digital Document Vault</h1>
+            <p class="page-subtitle">Store and verify your vehicle RC, PUC, Driving Licence, and Insurance certificates.</p>
+          </div>
+          <button class="btn btn-primary" onclick="openDocModal()">
+            <span>+ Upload Document</span>
+          </button>
+        </div>
+
+        <div id="alertBox"></div>
+
+        <!-- Vehicle Filter Bar -->
+        <div class="card" style="margin-bottom: 24px; padding: 16px 20px;">
+          <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+            <label class="form-label" style="margin-bottom: 0;">Filter by Vehicle:</label>
+            <select id="vehicleFilter" class="form-select" style="max-width: 320px;" onchange="filterDocuments()">
+              <option value="">All Registered Vehicles</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Documents Grid (Matching Screenshot #8) -->
+        <div id="docsGrid" class="documents-grid">
+          <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Loading document vault...</p>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Upload Modal -->
+  <div class="modal-overlay" id="docModal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Upload Vehicle Document</h3>
+        <button class="modal-close-btn" onclick="closeDocModal()">✕</button>
+      </div>
+      <form id="docUploadForm">
+        <div class="form-group">
+          <label class="form-label" for="uploadVehicleSelect">Select Vehicle *</label>
+          <select id="uploadVehicleSelect" class="form-select" required></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="uploadDocType">Document Type *</label>
+          <select id="uploadDocType" class="form-select" required>
+            <option value="RC Book">RC Book (Registration Certificate)</option>
+            <option value="Insurance">Insurance Policy Certificate</option>
+            <option value="PUC">Pollution Under Control (PUC)</option>
+            <option value="Driving Licence">Driving Licence</option>
+            <option value="Other">Other Certificate / Invoice</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="uploadDocName">Document Title</label>
+          <input type="text" id="uploadDocName" class="form-control" placeholder="e.g. Official RC Book Front/Back">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="uploadFile">Select Document File *</label>
+          <input type="file" id="uploadFile" class="form-control" accept=".pdf,.png,.jpg,.jpeg" required>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeDocModal()">Cancel</button>
+          <button type="submit" id="submitDocBtn" class="btn btn-primary">Upload to Vault</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/navbar.js"></script>
+  <script>
+    let allDocuments = [];
+    let vehiclesList = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!requireAuth()) return;
+      loadInitialData();
+    });
+
+    async function loadInitialData() {
+      try {
+        const vRes = await apiGet('/vehicles');
+        vehiclesList = vRes.vehicles || vRes.data || [];
+
+        const filterSelect = document.getElementById('vehicleFilter');
+        const uploadSelect = document.getElementById('uploadVehicleSelect');
+
+        filterSelect.innerHTML = '<option value="">All Registered Vehicles</option>';
+        uploadSelect.innerHTML = '<option value="">-- Select Vehicle --</option>';
+
+        vehiclesList.forEach(v => {
+          const opt = `<option value="${v._id}">${v.vehicleNumber} – ${v.brand} ${v.model}</option>`;
+          filterSelect.innerHTML += opt;
+          uploadSelect.innerHTML += opt;
+        });
+
+        loadAllDocuments();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function loadAllDocuments() {
+      try {
+        const res = await apiGet('/documents');
+        allDocuments = res.documents || res.data || [];
+        renderDocs(allDocuments);
+      } catch (err) {
+        document.getElementById('docsGrid').innerHTML = '<p class="text-danger">Failed to load documents: ' + (err.message || 'Server error') + '</p>';
+      }
+    }
+
+    function filterDocuments() {
+      const selectedId = document.getElementById('vehicleFilter').value;
+      if (!selectedId) {
+        renderDocs(allDocuments);
+      } else {
+        const filtered = allDocuments.filter(d => {
+          const vId = d.vehicleId ? (d.vehicleId._id || d.vehicleId) : null;
+          return vId && vId.toString() === selectedId.toString();
+        });
+        renderDocs(filtered);
+      }
+    }
+
+    function renderDocs(docs) {
+      const grid = document.getElementById('docsGrid');
+      if (docs.length === 0) {
+        grid.innerHTML = `
+          <div class="card empty-card" style="grid-column: 1 / -1;">
+            <div class="empty-icon">📁</div>
+            <h3>No Documents in Vault</h3>
+            <p>Upload digital copies of your vehicle's RC Book, PUC, Insurance, or Driving Licence.</p>
+            <button class="btn btn-primary" style="margin-top: 14px;" onclick="openDocModal()">+ Upload First Document</button>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      docs.forEach(d => {
+        let icon = '📄';
+        if (d.documentType === 'RC Book') icon = '📘';
+        else if (d.documentType === 'Insurance') icon = '🛡️';
+        else if (d.documentType === 'PUC') icon = '⚡';
+        else if (d.documentType === 'Driving Licence') icon = '🪪';
+
+        const vehNum = d.vehicleId ? (d.vehicleId.vehicleNumber || 'Linked Vehicle') : 'Vehicle';
+
+        html += `
+          <div class="doc-card card">
+            <div class="doc-icon">${icon}</div>
+            <div class="doc-info">
+              <h4>${d.documentType}</h4>
+              <p><strong>${vehNum}</strong></p>
+              <p style="font-size: 11.5px; color:#64748b;">${d.documentName || 'Official Document'}</p>
+              <span class="badge badge-success">${d.status || 'Uploaded'}</span>
+            </div>
+            <div class="doc-actions">
+              <a href="${d.fileUrl}" target="_blank" class="btn btn-outline btn-sm">View File</a>
+              <button class="btn btn-danger btn-sm" onclick="deleteVaultDoc('${d._id}')">🗑️</button>
+            </div>
+          </div>
+        `;
+      });
+
+      // Append upload dashed card
+      html += `
+        <div class="doc-card add-doc-card" onclick="openDocModal()">
+          <div class="add-plus-icon">+</div>
+          <div class="doc-info">
+            <h4>Upload Document</h4>
+            <p>Add new certificate</p>
+          </div>
+        </div>
+      `;
+
+      grid.innerHTML = html;
+    }
+
+    function openDocModal() {
+      document.getElementById('docModal').style.display = 'flex';
+    }
+
+    function closeDocModal() {
+      document.getElementById('docModal').style.display = 'none';
+    }
+
+    document.getElementById('docUploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const vehId = document.getElementById('uploadVehicleSelect').value;
+      const docType = document.getElementById('uploadDocType').value;
+      const docName = document.getElementById('uploadDocName').value.trim();
+      const fileInput = document.getElementById('uploadFile');
+      const btn = document.getElementById('submitDocBtn');
+
+      if (!vehId) {
+        alert('Please select a vehicle.');
+        return;
+      }
+      if (!fileInput.files || fileInput.files.length === 0) {
+        alert('Please choose a file to upload.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('document', fileInput.files[0]);
+      formData.append('vehicleId', vehId);
+      formData.append('documentType', docType);
+      formData.append('documentName', docName || docType);
+
+      btn.disabled = true;
+      btn.textContent = 'Uploading...';
+
+      try {
+        await apiPost('/documents/upload', formData);
+        showAlert('alertBox', 'Document stored in digital vault successfully!', 'success');
+        document.getElementById('docUploadForm').reset();
+        closeDocModal();
+        loadAllDocuments();
+      } catch (err) {
+        alert('Upload failed: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Upload to Vault';
+      }
+    });
+
+    async function deleteVaultDoc(docId) {
+      if (!confirm('Are you sure you want to permanently remove this document?')) return;
+      try {
+        await apiDelete('/documents/' + docId);
+        showAlert('alertBox', 'Document deleted successfully.', 'success');
+        loadAllDocuments();
+      } catch (err) {
+        showAlert('alertBox', 'Failed to delete: ' + err.message);
+      }
+    }
+  </script>
+</body>
+</html>

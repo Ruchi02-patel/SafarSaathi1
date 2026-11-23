@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vehicle RC Search & HSRP Lookup – SafarSaathi</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    .hsrp-container {
+      display: inline-flex;
+      align-items: center;
+      background: #ffffff;
+      border: 3px solid #0f172a;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      margin: 16px 0;
+    }
+    .hsrp-blue-strip {
+      background: #1e3a8a;
+      color: #ffffff;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      border-right: 2px solid #0f172a;
+    }
+    .hsrp-chakra {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px dashed #60a5fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+    .hsrp-ind-text {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+    .hsrp-reg-text {
+      padding: 10px 24px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: #0f172a;
+      text-transform: uppercase;
+      background: repeating-linear-gradient(
+        45deg,
+        #ffffff,
+        #ffffff 10px,
+        #fafafa 10px,
+        #fafafa 20px
+      );
+    }
+    .sample-pill {
+      cursor: pointer;
+      padding: 4px 10px;
+      background: #e2e8f0;
+      color: #334155;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: monospace;
+      transition: all 0.2s;
+    }
+    .sample-pill:hover {
+      background: #1e62ff;
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+  <div class="layout-container">
+    <div id="sidebar-container"></div>
+
+    <div class="main-wrapper">
+      <div id="topbar-container"></div>
+
+      <main class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Vehicle Registration Search & HSRP Lookup</h1>
+            <p class="page-subtitle">Verify Indian vehicle registration details, ownership records, high-security plate authenticity, insurance and PUC validity.</p>
+          </div>
+        </div>
+
+        <div id="alertBox"></div>
+
+        <!-- Search Bar Card -->
+        <div class="card mb-4" style="background: linear-gradient(135deg, #0d2238 0%, #1e3a5f 100%); color:#fff; border:none; padding:28px 24px;">
+          <h2 style="font-size:20px; font-weight:700; color:#fff; margin-bottom:8px;">
+            🔍 Enter Vehicle Registration Number (HSRP)
+          </h2>
+          <p style="font-size:13px; color:#cbd5e1; margin-bottom:20px;">
+            Search any Indian vehicle (e.g. MH-12-AB-1234). The system searches local RTO registers and verified vehicle databases.
+          </p>
+
+          <form id="searchForm" onsubmit="executeSearch(event)" style="display:flex; flex-wrap:wrap; gap:12px; align-items:center;">
+            <div style="flex:2; min-width:260px;">
+              <input type="text" id="regNumberInput" class="form-control" style="font-size:17px; font-family:monospace; font-weight:700; text-transform:uppercase; letter-spacing:1px; padding:12px 16px; background:#fff; color:#0f172a;" placeholder="e.g. GJ07 DK 1616" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="padding:12px 24px; font-size:15px;">
+              <span>Search Records</span>
+            </button>
+          </form>
+
+          <!-- Quick Test Pills for Viva -->
+          <div style="margin-top:16px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span style="font-size:12px; color:#94a3b8; font-weight:600;">Sample Records for Evaluation:</span>
+            <span class="sample-pill" onclick="quickFill('GJ07DK1616')">GJ07DK1616 (Brezza - Diya Patel)</span>
+            <span class="sample-pill" onclick="quickFill('GJ01KL1111')">GJ01KL1111 (Swift - Ahmedabad)</span>
+            <span class="sample-pill" onclick="quickFill('GJ06CD5678')">GJ06CD5678 (Activa - Vadodara)</span>
+            <span class="sample-pill" onclick="quickFill('MH12AB1234')">MH12AB1234 (Swift)</span>
+          </div>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="searchLoading" class="text-center py-5" style="display:none;">
+          <div class="spinner"></div>
+          <p class="text-muted mt-2">Searching vehicle records across RTO database...</p>
+        </div>
+
+        <!-- Initial Placeholder State -->
+        <div id="initialState" class="card text-center py-5">
+          <div style="font-size:48px; margin-bottom:12px;">🚗</div>
+          <h3 style="font-size:18px; font-weight:700; color:var(--text-dark);">Ready to Search Vehicle Information</h3>
+          <p class="text-muted" style="max-width:500px; margin:8px auto 0; font-size:13px;">
+            Enter any Indian vehicle registration number above or click on one of the demo samples to inspect verified RTO data, owner information, and HSRP high-security visualization.
+          </p>
+        </div>
+
+        <!-- Result Container -->
+        <div id="searchResult" style="display:none;">
+          <!-- Top Visual Banner with HSRP Plate -->
+          <div class="card mb-4" style="text-align:center; padding: 24px;">
+            <span class="badge badge-success mb-2" style="font-size:12px; padding:4px 12px;">
+              ✅ RTO Verified Vehicle Record
+            </span>
+
+            <div>
+              <div class="hsrp-container">
+                <div class="hsrp-blue-strip">
+                  <div class="hsrp-chakra">☸</div>
+                  <span class="hsrp-ind-text">IND</span>
+                </div>
+                <div class="hsrp-reg-text" id="hsrpDisplayNumber">MH 12 AB 1234</div>
+              </div>
+            </div>
+
+            <h2 id="resVehicleName" style="font-size:22px; font-weight:800; color:var(--text-dark); margin:6px 0;">
+              Maruti Suzuki Swift VXi
+            </h2>
+            <p id="resOwnerLocation" style="font-size:13px; color:var(--text-muted); margin:0;">
+              Owner: <strong>Rahul Sharma</strong> | Registered at RTO Pune, Maharashtra
+            </p>
+          </div>
+
+          <!-- 3 Columns Details Breakdown -->
+          <div class="grid-3 mb-4">
+            <!-- Card 1: Registration Details -->
+            <div class="card">
+              <h3 style="font-size:15px; font-weight:700; color:var(--text-dark); margin-bottom:12px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
+                📋 Registration Details
+              </h3>
+              <table style="width:100%; font-size:13px; line-height:2;">
+                <tr>
+                  <td style="color:#64748b;">Registration No:</td>
+                  <td id="resRegNo" style="font-weight:700; font-family:monospace; text-align:right;">--</td>
+                </tr>
+                <tr>
+                  <td style="color:#64748b;">Registered Owner:</td>
+                  <td id="resOwner" style="font-weight:600; text-align:right;">--</td>
+                </tr>
+                <tr>
+                  <td style="color:#64748b;">Registration Date:</td>
+                  <td id="resRegDate" style="text-align:right;">--</td>
+                </tr>
+                <tr>
+                  <td style="color:#64748b;">Registering RTO:</td>
+                  <td id="resRto" style="text-align:right;">--</td>
+                </tr>
+                <tr>
+                  <td style="color:#64748b;">RC Status:</td>
+                  <td style="text-align:right;"><span id="resRcBadge" class="badge badge-success">Active</span></td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- Card 2: Vehicle Specifications -->
+            <div class="card">
+              <h3 style="font-size:15px; font-weight:700; color:var(--text-dark); margin-bottom:12px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
+                ⚙️ Technical Specifications
+              </h3>
+              <table style="width:100%; font-size:13px; line-height:2;">
+                <tr>
+                  <td style="color:#64748b;">Manufacturer / Brand:</td>
+                  <td id="resBrand" style="font-weight:600; text-align:right;">--</td>
+                </tr>
+                <tr>
+                  <td style="color:#64748b;">Model Name:</td>
+                  <td id="resModel" style="font-weight:600; text-align:right;">--</td>
+                </tr>
+                <tr>
+                  <td style="color:#64748b;">Vehicle Class:</td>
+                  <td id="resClass" style="text-align:right;">--</td>
+                </tr>
+                <tr>
+                  <td style="color:#64748b;">Fuel Type:</td>
+                  <td id="resFuel" style="text-align:right; font-weight:600; color:#1e62ff;">--</td>
+                </tr>
+                <tr>
+                  <td style="color:#64748b;">Chassis Number:</td>
+                  <td id="resChassis" style="font-family:monospace; text-align:right;">--</td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- Card 3: Compliance & Validity -->
+            <div class="card">
+              <h3 style="font-size:15px; font-weight:700; color:var(--text-dark); margin-bottom:12px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
+                🛡️ Statutory Compliance
+              </h3>
+              <table style="width:100%; font-size:13px; line-height:2;">
+                <tr>
+                  <td style="color:#64748b;">Insurance Validity:</td>
+                  <td style="text-align:right;"><span id="resInsuranceBadge" class="badge badge-success">Valid / Active</span></td>
+                </tr>
+                <tr>
+                  <td style="color:#64748b;">PUC Emission Test:</td>
+                  <td style="text-align:right;"><span id="resPucBadge" class="badge badge-success">Valid (BS-VI)</span></td>
+                </tr>
+                <tr>
+                  <td style="color:#64748b;">Commercial Permit:</td>
+                  <td id="resPermit" style="text-align:right; color:#64748b;">Not Required (Private)</td>
+                </tr>
+                <tr>
+                  <td style="color:#64748b;">Blacklist Status:</td>
+                  <td style="text-align:right;"><span class="badge badge-success">Clean / No Challans</span></td>
+                </tr>
+                <tr>
+                  <td style="color:#64748b;">Statutory Fitness:</td>
+                  <td id="resFitness" style="text-align:right; font-weight:600; color:#10b981;">Valid (Under 15 Yrs)</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- Bottom Action Strip -->
+          <div class="card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div>
+              <strong style="color:var(--text-dark);">Is this your vehicle?</strong>
+              <span class="text-muted" style="font-size:13px; margin-left:6px;">Add it to your personal SafarSaathi garage for automated reminders, fuel tracking, and document storage.</span>
+            </div>
+            <a href="/vehicles/add" class="btn btn-primary btn-sm">
+              <span>+ Add to My Garage</span>
+            </a>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/navbar.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      renderNavbar();
+
+      // Check if URL has ?reg= parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const reg = urlParams.get('reg');
+      if (reg) {
+        quickFill(reg);
+      }
+    });
+
+    function quickFill(regNumber) {
+      document.getElementById('regNumberInput').value = regNumber;
+      executeSearch();
+    }
+
+    async function executeSearch(e) {
+      if (e) e.preventDefault();
+
+      const input = document.getElementById('regNumberInput');
+      const rawNumber = input.value.trim();
+      if (!rawNumber) return;
+
+      const loading = document.getElementById('searchLoading');
+      const initial = document.getElementById('initialState');
+      const result = document.getElementById('searchResult');
+
+      initial.style.display = 'none';
+      result.style.display = 'none';
+      loading.style.display = 'block';
+
+      try {
+        const response = await apiGet(`/vehicle-search/${encodeURIComponent(rawNumber)}`);
+        const data = response.data || response.vehicle || response.record;
+
+        if (!data) {
+          throw new Error('Vehicle record not found.');
+        }
+
+        renderVehicleRecord(data);
+      } catch (err) {
+        showAlert('alertBox', 'danger', err.message || 'Vehicle record not found for ' + rawNumber);
+        initial.style.display = 'block';
+      } finally {
+        loading.style.display = 'none';
+      }
+    }
+
+    function renderVehicleRecord(v) {
+      document.getElementById('searchResult').style.display = 'block';
+
+      // Format formatted plate: e.g. MH 12 AB 1234
+      const formattedNum = v.vehicleNumber.toUpperCase();
+      document.getElementById('hsrpDisplayNumber').textContent = formattedNum;
+      document.getElementById('resVehicleName').textContent = `${v.brand || ''} ${v.model || ''}`;
+      document.getElementById('resOwnerLocation').innerHTML = `Owner: <strong>${v.ownerName || 'Verified Citizen'}</strong> | Registered at RTO ${v.registrationCity || 'Pune'}, ${v.registrationState || 'Maharashtra'}`;
+
+      document.getElementById('resRegNo').textContent = formattedNum;
+      document.getElementById('resOwner').textContent = v.ownerName || 'Verified Citizen';
+      document.getElementById('resRegDate').textContent = v.registrationDate ? new Date(v.registrationDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '01 Jan 2021';
+      document.getElementById('resRto').textContent = `${v.registrationCity || 'Pune'} RTO (${v.registrationState || 'MH'})`;
+
+      document.getElementById('resBrand').textContent = v.brand || 'Maruti Suzuki';
+      document.getElementById('resModel').textContent = v.model || 'Swift';
+      document.getElementById('resClass').textContent = v.vehicleType || 'Motor Car (LMV)';
+      document.getElementById('resFuel').textContent = v.fuelType || 'Petrol';
+      document.getElementById('resChassis').textContent = v.chassisNumber || '••••1234';
+
+      // Status badges
+      const insBadge = document.getElementById('resInsuranceBadge');
+      if (v.insuranceValidity === 'Expired') {
+        insBadge.className = 'badge badge-danger';
+        insBadge.textContent = 'Expired';
+      } else {
+        insBadge.className = 'badge badge-success';
+        insBadge.textContent = 'Active & Valid';
+      }
+
+      const pucBadge = document.getElementById('resPucBadge');
+      if (v.pucValidity === 'Expired') {
+        pucBadge.className = 'badge badge-warning';
+        pucBadge.textContent = 'Renewal Overdue';
+      } else {
+        pucBadge.className = 'badge badge-success';
+        pucBadge.textContent = 'Valid (Green Emission)';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Vehicle Loan Requests – SafarSaathi Admin</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="layout-container">
+    <div id="admin-sidebar-container"></div>
+
+    <div class="main-wrapper">
+      <div id="admin-topbar-container"></div>
+
+      <main class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Citizen Vehicle Loan Applications</h1>
+            <p class="page-subtitle">Underwrite, assess financial credit parameters, and officially Approve or Reject vehicle purchase loans.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-outline" onclick="loadLoans()">
+              <span>🔄 Refresh Applications</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="alertBox"></div>
+
+        <!-- 4 Loan Metric Cards -->
+        <div class="grid-4 stats-grid mb-4">
+          <div class="stat-card">
+            <div class="stat-icon blue">💰</div>
+            <div class="stat-info">
+              <span class="stat-label">Total Applications</span>
+              <span class="stat-value" id="statTotalLoans">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange">⏳</div>
+            <div class="stat-info">
+              <span class="stat-label">Pending Review</span>
+              <span class="stat-value" id="statPendingLoans">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">✅</div>
+            <div class="stat-info">
+              <span class="stat-label">Approved Loans</span>
+              <span class="stat-value" id="statApprovedLoans">0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple">💳</div>
+            <div class="stat-info">
+              <span class="stat-label">Approved Value</span>
+              <span class="stat-value" id="statTotalValue">₹ 0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="card mb-4">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-primary btn-sm loan-filter-btn" data-status="All" onclick="filterLoans('All')">All Requests</button>
+              <button class="btn btn-secondary btn-sm loan-filter-btn" data-status="Pending" onclick="filterLoans('Pending')">⏳ Pending Only</button>
+              <button class="btn btn-secondary btn-sm loan-filter-btn" data-status="Approved" onclick="filterLoans('Approved')">✅ Approved</button>
+              <button class="btn btn-secondary btn-sm loan-filter-btn" data-status="Rejected" onclick="filterLoans('Rejected')">❌ Rejected</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Applications Table Card -->
+        <div class="card">
+          <div id="loansLoading" class="text-center py-5">
+            <div class="spinner"></div>
+            <p class="text-muted mt-2">Loading citizen loan applications...</p>
+          </div>
+
+          <div id="loansEmpty" class="empty-state text-center py-5" style="display:none;">
+            <div style="font-size:42px; margin-bottom:8px;">💰</div>
+            <h4>No Loan Applications Found</h4>
+            <p class="text-muted">No applications match your selected status filter.</p>
+          </div>
+
+          <div class="table-responsive" id="loansTableContainer" style="display:none;">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Applicant Citizen</th>
+                  <th>Vehicle Details</th>
+                  <th>Loan Amount</th>
+                  <th>Tenure & EMI</th>
+                  <th>Income & Employment</th>
+                  <th>Applied Date</th>
+                  <th>Status</th>
+                  <th>Decision Actions</th>
+                </tr>
+              </thead>
+              <tbody id="loansTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Loan Decision Modal -->
+  <div class="modal-backdrop" id="decisionModal" style="display:none;">
+    <div class="modal" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="decisionModalTitle">Approve Loan Application</h3>
+        <button class="modal-close" onclick="closeDecisionModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="decisionForm" onsubmit="submitDecision(event)">
+          <input type="hidden" id="decisionLoanId">
+          <input type="hidden" id="decisionTargetStatus">
+
+          <p id="decisionPromptText" style="font-size:14px; color:var(--text-dark); margin-bottom:14px;">
+            Are you sure you want to approve this application?
+          </p>
+
+          <div class="form-group mb-3">
+            <label class="form-label">Official Remarks / Underwriting Notes</label>
+            <textarea id="decisionRemarks" class="form-control" rows="3" placeholder="e.g. KYC verified, credit assessment score > 750 approved with HDFC partnership."></textarea>
+          </div>
+
+          <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px;">
+            <button type="button" class="btn btn-secondary" onclick="closeDecisionModal()">Cancel</button>
+            <button type="submit" id="decisionSubmitBtn" class="btn btn-success">Confirm Decision</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/admin-navbar.js"></script>
+  <script>
+    let allLoans = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      requireAdminAuth();
+      loadLoans();
+    });
+
+    async function loadLoans() {
+      const loading = document.getElementById('loansLoading');
+      const container = document.getElementById('loansTableContainer');
+      const empty = document.getElementById('loansEmpty');
+
+      loading.style.display = 'block';
+      container.style.display = 'none';
+      empty.style.display = 'none';
+
+      try {
+        const response = await apiGet('/loans');
+        allLoans = response.loans || response.data || [];
+        updateStats(allLoans);
+        renderLoans(allLoans);
+      } catch (err) {
+        showAlert('alertBox', 'danger', 'Failed to load loan applications: ' + err.message);
+      } finally {
+        loading.style.display = 'none';
+      }
+    }
+
+    function updateStats(items) {
+      const total = items.length;
+      const pending = items.filter(l => l.status === 'Pending').length;
+      const approved = items.filter(l => l.status === 'Approved').length;
+      const approvedVal = items.filter(l => l.status === 'Approved').reduce((sum, l) => sum + (l.loanAmount || 0), 0);
+
+      document.getElementById('statTotalLoans').textContent = total;
+      document.getElementById('statPendingLoans').textContent = pending;
+      document.getElementById('statApprovedLoans').textContent = approved;
+      document.getElementById('statTotalValue').textContent = '₹ ' + approvedVal.toLocaleString('en-IN');
+    }
+
+    function filterLoans(status) {
+      document.querySelectorAll('.loan-filter-btn').forEach(btn => {
+        if (btn.getAttribute('data-status') === status) {
+          btn.className = 'btn btn-primary btn-sm loan-filter-btn';
+        } else {
+          btn.className = 'btn btn-secondary btn-sm loan-filter-btn';
+        }
+      });
+
+      const filtered = (status === 'All') ? allLoans : allLoans.filter(l => l.status === status);
+      renderLoans(filtered);
+    }
+
+    function renderLoans(items) {
+      const tbody = document.getElementById('loansTableBody');
+      const container = document.getElementById('loansTableContainer');
+      const empty = document.getElementById('loansEmpty');
+
+      if (!items || items.length === 0) {
+        container.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+      }
+
+      empty.style.display = 'none';
+      container.style.display = 'block';
+
+      tbody.innerHTML = items.map(l => {
+        const applicantName = l.userId ? l.userId.fullName : 'Citizen Applicant';
+        const applicantContact = l.userId ? (l.userId.phone || l.userId.email) : 'N/A';
+        const vBrand = l.vehicleId ? `${l.vehicleId.brand} ${l.vehicleId.model}` : 'New Car';
+        const vPlate = l.vehicleId ? l.vehicleId.vehicleNumber : 'RTO Transit';
+
+        let statusBadge = 'badge-warning';
+        if (l.status === 'Approved') statusBadge = 'badge-success';
+        if (l.status === 'Rejected') statusBadge = 'badge-danger';
+
+        const isPending = (l.status === 'Pending');
+
+        const dateStr = l.appliedDate || l.createdAt;
+        const formattedDate = dateStr ? new Date(dateStr).toLocaleDateString('en-IN', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric'
+        }) : 'N/A';
+
+        return `
+          <tr>
+            <td>
+              <strong style="color:var(--text-dark);">${applicantName}</strong>
+              <div style="font-size:12px; color:#64748b;">${applicantContact}</div>
+            </td>
+            <td>
+              <div style="font-weight:600;">${vBrand}</div>
+              <div style="font-size:11px; font-family:monospace; color:#1e62ff;">${vPlate}</div>
+            </td>
+            <td>
+              <strong style="font-size:14px; color:#1e293b;">₹ ${(l.loanAmount || 0).toLocaleString('en-IN')}</strong>
+              <div style="font-size:11px; color:#64748b;">Bank: ${l.bankName || 'HDFC Bank'}</div>
+            </td>
+            <td>
+              <div><strong>${l.tenureMonths || 36} Mos</strong> @ ${l.interestRate || 8.5}%</div>
+              <div style="font-size:12px; color:#10b981; font-weight:700;">EMI: ₹ ${(l.estimatedEmi || 0).toLocaleString('en-IN')} / mo</div>
+            </td>
+            <td>
+              <div style="font-size:13px;">${l.employmentType || 'Salaried'}</div>
+              <div style="font-size:11px; color:#64748b;">Income: ₹ ${(l.monthlyIncome || 0).toLocaleString('en-IN')}/mo</div>
+            </td>
+            <td>
+              <div style="font-size:13px; font-weight:600; color:#334155;">${formattedDate}</div>
+            </td>
+            <td>
+              <span class="badge ${statusBadge}">${l.status}</span>
+              ${l.remarks ? `<div style="font-size:10px; color:#64748b; margin-top:2px;">"${l.remarks}"</div>` : ''}
+            </td>
+            <td>
+              ${isPending ? `
+                <div style="display:flex; gap:6px;">
+                  <button class="btn btn-success btn-sm" onclick="openDecisionModal('${l._id}', 'Approved')" style="font-size:11px; padding:4px 8px;">
+                    ✓ Approve
+                  </button>
+                  <button class="btn btn-danger btn-sm" onclick="openDecisionModal('${l._id}', 'Rejected')" style="font-size:11px; padding:4px 8px;">
+                    ✕ Reject
+                  </button>
+                </div>
+              ` : `
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <span style="font-size:12px; color:#94a3b8;">Processed</span>
+                  <button class="btn btn-outline btn-sm" onclick="openDecisionModal('${l._id}', '${l.status === 'Approved' ? 'Rejected' : 'Approved'}')" style="font-size:10px; padding:2px 6px;" title="Update decision">
+                    Update
+                  </button>
+                </div>
+              `}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function openDecisionModal(id, targetStatus) {
+      document.getElementById('decisionLoanId').value = id;
+      document.getElementById('decisionTargetStatus').value = targetStatus;
+      
+      const title = document.getElementById('decisionModalTitle');
+      const prompt = document.getElementById('decisionPromptText');
+      const submitBtn = document.getElementById('decisionSubmitBtn');
+
+      if (targetStatus === 'Approved') {
+        title.textContent = 'Approve Vehicle Loan Application';
+        prompt.textContent = 'Confirm approval of this citizen loan application. The user will be notified in their SafarSaathi portal.';
+        submitBtn.className = 'btn btn-success';
+        submitBtn.textContent = 'Confirm Approval';
+      } else {
+        title.textContent = 'Reject Loan Application';
+        prompt.textContent = 'Please confirm rejection of this application and provide the reason below.';
+        submitBtn.className = 'btn btn-danger';
+        submitBtn.textContent = 'Confirm Rejection';
+      }
+
+      document.getElementById('decisionRemarks').value = '';
+      document.getElementById('decisionModal').style.display = 'flex';
+    }
+
+    function closeDecisionModal() {
+      document.getElementById('decisionModal').style.display = 'none';
+    }
+
+    async function submitDecision(e) {
+      e.preventDefault();
+      const id = document.getElementById('decisionLoanId').value;
+      const status = document.getElementById('decisionTargetStatus').value;
+      const remarks = document.getElementById('decisionRemarks').value.trim();
+
+      try {
+        await apiPut(`/loans/${id}/status`, { status, remarks });
+        closeDecisionModal();
+        showAlert('alertBox', 'success', `Loan application marked as ${status} successfully.`);
+        await loadLoans();
+      } catch (err) {
+        showAlert('alertBox', 'danger', 'Failed to update loan status: ' + err.message);
+      }
+    }
+  </script>
+</body>
+</html>
