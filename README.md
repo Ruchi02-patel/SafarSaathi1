@@ -519,4 +519,4 @@ For future versions of SafarSaathi:
 
 ---
 
-*Developed by Diya for MCA Semester 3 Project Evaluation (2026).*
+*Developed by Ruchi Patel for MCA Semester 3 Project Evaluation (2026).*
